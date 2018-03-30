@@ -1,0 +1,22 @@
+Node (classe conceitual)
+parent
+leftChild
+rightChild
+symbol
+frequency
+
+----------------------------------------
+
+Root (classe base)
+leftChild
+rightChild
+
+InternalNode (classe derivada de Root)
+parent
+frequency
+
+Leaf (classe independente)
+parent
+byte
+frequency
+
