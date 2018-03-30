@@ -1,30 +1,31 @@
-//Universidade Federal da Paraiba
-//Centro de Informatica
-//Disciplina: [1107186] - Estruturas de Dados (2014.2) - Turma 01
-//Professor: Christian Azambuja Pagot
+// Universidade Federal da Paraiba
+// Centro de Informatica
+// Disciplina: Introducao a Teoria da Informacao
+// Professor: Teobaldo Junior
 //
-//Trabalho II - Implementacao em C++ de um compressor/descompressor usando a codificacao de Huffman
+// Trabalho I - Implementacao em C++ de um compressor/descompressor usando o algoritmo de Huffman
+// semi-adaptativo de decremento
 //
-//Aluno: Jorgeluis Andrade Guerra - 11325713
+// Alunos: Jorgeluis Guerra
+//         Francisco Erberto
 //
-//Padrao C++: GNU++11 (dialeto GNU que implementa o padrao ISO C++11 - ISO/IEC 14882:2011)
-//Compilador: g++ 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
-//SO: Linux kernel 3.13.0-45-generic x86_64 (Ubuntu 14.04.1 LTS)
+// Padrao C++: GNU++11 (dialeto GNU que implementa o padrao ISO C++11 - ISO/IEC 14882:2011)
+// Compilador: g++ 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
+// SO: Linux kernel 4.15.12-301.fc27 x86_64 (Fedora 27 Workstation)
 //
-//Comando de compilacao: g++ -std=gnu++11 -pedantic -O2 -Wall -lm -o huffman huffman.cpp
+// Comando de compilacao: g++ -std=gnu++11 -pedantic -O2 -Wall -lm -o huffman huffman.cpp
 //
-//Sintaxe do binario:
-//Compressao: ./huffman -c <arquivo de entrada - descomprimido> <arquivo de saida - comprimido>
-//Descompressao: ./huffman -x <arquivo de entrada - comprimido> <arquivo de saida - descomprimido>
+// Sintaxe do binario:
+// Compressao: ./huffman -c <arquivo de entrada - descomprimido> <arquivo de saida - comprimido>
+// Descompressao: ./huffman -x <arquivo de entrada - comprimido> <arquivo de saida - descomprimido>
 
 #include <iostream>
 #include <fstream>
 
 #define BYTE 256
 
-
-//Functions prototypes
-unsigned int* getByteFrequency(const char* filename);  //Filename with extension
+// Functions prototypes
+unsigned int* getByteFrequency(const char* filename);  // Filename with extension
 
 /*<*arvore> buildHuffmanTree(int *bytesTable);
 
@@ -42,7 +43,7 @@ int main (int argc, char *argv[]) {
    return 0;
 }
 
-unsigned int* getByteFrequency(const char* filename) {  //Filename with extension
+unsigned int* getByteFrequency(const char* filename) {  // Filename with extension
 
    static unsigned int frequencyTable[BYTE] = {0};
    std::ifstream file;
@@ -54,7 +55,7 @@ unsigned int* getByteFrequency(const char* filename) {  //Filename with extensio
 
    if(file.is_open()) {
 
-      //Get the length of the file
+      // Get the length of the file
       file.seekg(0, std::ios::end);
       length = file.tellg();
       file.seekg(0, std::ios::beg);
