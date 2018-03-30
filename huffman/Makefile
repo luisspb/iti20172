@@ -1,6 +1,6 @@
-# Authors: Jorgeluis Guerra
+# Autores: Jorgeluis Guerra
 #          Francisco Erberto
-# Based on tutorial available in: http://ubuntuforum-pt.org/index.php/topic,21155.0.html
+# Baseado no tutorial disponivel em: http://ubuntuforum-pt.org/index.php/topic,21155.0.html
 
 CPPFLAGS= -std=gnu++11 -pedantic -O2 -Wall
 LIBS= -lm

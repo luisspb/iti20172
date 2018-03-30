@@ -24,7 +24,7 @@
 
 #define BYTE 256
 
-// Functions prototypes
+// Prototipos de funcoes
 unsigned int* getByteFrequency(const char* filename);  // Filename with extension
 
 /*<*arvore> buildHuffmanTree(int *bytesTable);
@@ -43,7 +43,7 @@ int main (int argc, char *argv[]) {
    return 0;
 }
 
-unsigned int* getByteFrequency(const char* filename) {  // Filename with extension
+unsigned int* getByteFrequency(const char* filename) {  // nome do arquivo com a extensao
 
    static unsigned int frequencyTable[BYTE] = {0};
    std::ifstream file;
@@ -55,7 +55,7 @@ unsigned int* getByteFrequency(const char* filename) {  // Filename with extensi
 
    if(file.is_open()) {
 
-      // Get the length of the file
+      // Obtem o tamanho do arquivo
       file.seekg(0, std::ios::end);
       length = file.tellg();
       file.seekg(0, std::ios::beg);
