@@ -23,7 +23,8 @@
 #include <fstream>
 
 #define BYTE 256
-/** Definição da árvore */
+
+// Definição da árvore
 typedef struct nodeArvore
 {
     int                 frequencia;
@@ -32,8 +33,7 @@ typedef struct nodeArvore
     struct nodeArvore   *direita;
 } nodeArvore;
 
-/** Definição da fila de prioridade (implementada como lista simplesmente encadeada) */
-
+// Definição da fila de prioridade (implementada como lista simplesmente encadeada)
 typedef struct nodeLista
 {
     nodeArvore          *n;
@@ -46,8 +46,10 @@ typedef struct lista
     int         elementos;
 } lista;
 
-// Prototipos de funcoes
-unsigned int* getByteFrequency(const char* filename);  // Filename with extension
+
+// Prototipos das funcoes
+std::ifstream openFile (char* filename);  // Recebe nome do arquivo com a extensao
+unsigned int* countByteFrequency(std::ifstream& file);
 
 nodeLista *novoNodeLista(nodeArvore *nArv);
 nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita);
@@ -64,40 +66,57 @@ decompressFile(<nome_arquivo_comprimido>, <nome_arquivo>)*/
 
 int main (int argc, char *argv[]) {
 
-   unsigned int* bytesTable = getByteFrequency(argv[2]);
+   // Arquivo a ser aberto para processamento
+   std::ifstream file;
+
+   file = openFile(argv[2]);
+
+   unsigned int* bytesArray = countByteFrequency(file);
+
+   for (int i = 0; i < BYTE; i++)
+      std::cout << "Byte " << i << ", Frequencia: " << bytesArray[i] << std::endl;
 
    return 0;
 }
 
-unsigned int* getByteFrequency(const char* filename) {  // nome do arquivo com a extensao
+std::ifstream openFile(char* filename) {
 
-   static unsigned int frequencyTable[BYTE] = {0};
    std::ifstream file;
-   unsigned int length;
-   char buffer;
 
    std::cout << "Opening file: " << filename << std::endl;
    file.open(filename, std::ios::in | std::ios::binary);
 
    if(file.is_open()) {
-
-      // Obtem o tamanho do arquivo
-      file.seekg(0, std::ios::end);
-      length = file.tellg();
-      file.seekg(0, std::ios::beg);
-
-      for (unsigned int i = 0; i < length; i++) {
-         file.read(&buffer, 1);
-         frequencyTable[static_cast<unsigned char>(buffer)]++;
-      }
-
+      return file;
    }
    else {
       std::cerr << "Error opening file: " << filename << std::endl;
       exit(1);
    }
-
-   return frequencyTable;
-
 }
 
+unsigned int* countByteFrequency(std::ifstream& file) {
+
+   // Cria array de frequencia de bytes com todas as posicoes
+   // inicialmente com zero
+   static unsigned int frequencyArray[BYTE] = {0};
+   // Variavel para guardar o tamanho do arquivo em bytes
+   unsigned int length;
+   // A leitura do arquivo se da byte por byte, cada byte eh
+   // primeiro armazenado no buffer
+   char buffer;
+
+   // Obtem o tamanho do arquivo em numero de bytes
+   file.seekg(0, std::ios::end);
+   length = file.tellg();
+   file.seekg(0, std::ios::beg);
+
+   std::cout << "Number of read bytes: " << length << std::endl;
+
+   for (unsigned int i = 0; i < length; i++) {
+      file.read(&buffer, 1);
+      frequencyArray[static_cast<unsigned char>(buffer)]++;
+   }
+
+   return frequencyArray;
+}
