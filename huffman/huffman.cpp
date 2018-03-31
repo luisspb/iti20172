@@ -22,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 #define BYTE 256
 
@@ -36,6 +37,7 @@ public:
    NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai);
    int getByte();
    int getFrequencia();
+   static bool compare(NodeArvore* one, NodeArvore* two);  // Metodo de classe, nao precisa de instancia
 };
 
 NodeArvore::NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai) {
@@ -52,6 +54,10 @@ int NodeArvore::getByte() {
 
 int NodeArvore::getFrequencia() {
    return this->frequencia;
+}
+
+bool NodeArvore::compare(NodeArvore* one, NodeArvore* two) {
+   return one->frequencia > two->frequencia;
 }
 
 // Definição da fila de prioridade
@@ -99,6 +105,8 @@ int main (int argc, char *argv[]) {
          listaNos.push_back(new NodeArvore(i, bytesArray[i], nullptr, nullptr, nullptr));
       }
    }
+
+   std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compare);
 
    std::cout << "Size of the list: " << listaNos.size() << std::endl;
    for (int i = 0; i < listaNos.size(); i++) {
