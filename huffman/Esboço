@@ -1,0 +1,26 @@
+Árvore
+Classes/Metodos
+
+  * criar árvore
+  * Verificiar se está vazia
+  * Exibir Árvore
+  * Função 
+  * Inserir um novo dado (nó) na árvore
+  * Verificar se o elemento pertence a Árvore
+  
+  
+  
+Frequencia
+Classes/Metodos
+
+  * Abrir Arquivo
+  * Ler Arquivo
+  * Verificar a quantidade de cada simbolo
+    - Totalizar a frequencia
+ 
+ 
+ Huffman
+ 
+  * A frequência é calculada:
+    - Iniciando da menor frequência para amaior
+    - O nó Pai é a soma dos seus filhos
