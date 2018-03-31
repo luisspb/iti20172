@@ -21,40 +21,61 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #define BYTE 256
 
-// Definição da árvore
-typedef struct nodeArvore
-{
-    int                 frequencia;
-    byte                c;
-    struct nodeArvore   *esquerda;
-    struct nodeArvore   *direita;
-} nodeArvore;
+// Definicao da classe dos nos da arvore
+class NodeArvore {
+   int                 byte;
+   int                 frequencia;
+   NodeArvore*         esquerda;
+   NodeArvore*         direita;
+   NodeArvore*         pai;
+public:
+   NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai);
+   int getByte();
+   int getFrequencia();
+};
+
+NodeArvore::NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai) {
+   this->byte = byte;
+   this->frequencia = frequencia;
+   this->esquerda = esquerda;
+   this->direita = direita;
+   this->pai = pai;
+}
+
+int NodeArvore::getByte() {
+   return this->byte;
+}
+
+int NodeArvore::getFrequencia() {
+   return this->frequencia;
+}
 
 // Definição da fila de prioridade
-typedef struct nodeLista
-{
-    nodeArvore          *n;
-    struct nodeLista    *proximo;
-} nodeLista;
-
-typedef struct lista
-{
-    nodeLista   *head;
-    int         elementos;
-} lista;
+// typedef struct nodeLista
+// {
+//     nodeArvore          *n;
+//     struct nodeLista    *proximo;
+// } nodeLista;
+//
+// typedef struct lista
+// {
+//     nodeLista   *head;
+//     int         elementos;
+// } lista;
 
 // Prototipos de funcoes
 std::ifstream openFile (char* filename);  // Recebe nome do arquivo com a extensao
 unsigned int* countByteFrequency(std::ifstream& file);
 
 // Função que faz alocação de memória e trata os ponteiros soltos acerca de nós da lista encadeada.
-nodeLista *novoNodeLista(nodeArvore *nArv);
+// nodeLista *novoNodeLista(nodeArvore *nArv);
 
 // Função que faz alocação de memória e trata os ponteiros soltos acerca de nós da árvore
-nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita);
+// nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita);
 
 // Codigo velho
 /*<*arvore> buildHuffmanTree(int *bytesTable);
@@ -66,13 +87,24 @@ int main (int argc, char *argv[]) {
 
    // Arquivo a ser aberto para processamento
    std::ifstream file;
+   // Vetor para armanezar os nos que vao compor a arvore de Huffman
+   std::vector <NodeArvore*> listaNos;
 
    file = openFile(argv[2]);
 
    unsigned int* bytesArray = countByteFrequency(file);
 
-   for (int i = 0; i < BYTE; i++)
-      std::cout << "Byte " << i << ", Frequencia: " << bytesArray[i] << std::endl;
+   for (int i = 0; i < BYTE; i++) {
+      if (bytesArray[i] != 0) {
+         listaNos.push_back(new NodeArvore(i, bytesArray[i], nullptr, nullptr, nullptr));
+      }
+   }
+
+   std::cout << "Size of the list: " << listaNos.size() << std::endl;
+   for (int i = 0; i < listaNos.size(); i++) {
+      std::cout << "Byte: " << listaNos[i]->getByte();
+      std::cout << ", Frequencia: " << listaNos[i]->getFrequencia() << std::endl;
+   }
 
    return 0;
 }
@@ -109,7 +141,7 @@ unsigned int* countByteFrequency(std::ifstream& file) {
    length = file.tellg();
    file.seekg(0, std::ios::beg);
 
-   std::cout << "Number of read bytes: " << length << std::endl;
+   std::cout << "Number of bytes read: " << length << std::endl;
 
    for (unsigned int i = 0; i < length; i++) {
       file.read(&buffer, 1);
