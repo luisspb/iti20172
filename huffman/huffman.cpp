@@ -37,6 +37,7 @@ public:
    NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai);
    int getByte();
    int getFrequencia();
+   void setPai(NodeArvore* pai);
    static bool compare(NodeArvore* one, NodeArvore* two);  // Metodo de classe, nao precisa de instancia
 };
 
@@ -56,45 +57,32 @@ int NodeArvore::getFrequencia() {
    return this->frequencia;
 }
 
+void NodeArvore::setPai(NodeArvore* pai) {
+   this->pai = pai;
+}
+
 bool NodeArvore::compare(NodeArvore* one, NodeArvore* two) {
    return one->frequencia > two->frequencia;
 }
 
-// Definição da fila de prioridade
-// typedef struct nodeLista
-// {
-//     nodeArvore          *n;
-//     struct nodeLista    *proximo;
-// } nodeLista;
-//
-// typedef struct lista
-// {
-//     nodeLista   *head;
-//     int         elementos;
-// } lista;
-
 // Prototipos de funcoes
-std::ifstream openFile (char* filename);  // Recebe nome do arquivo com a extensao
+
+// A funcao que abre o arquivo recebe nome do arquivo com a extensao
+std::ifstream openFile(char* filename);
 unsigned int* countByteFrequency(std::ifstream& file);
+// A funcao que controi a arvore de Huffman recebe a lista de Nos e devolve o ponteiro para a raiz
+NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos);
 
-// Função que faz alocação de memória e trata os ponteiros soltos acerca de nós da lista encadeada.
-// nodeLista *novoNodeLista(nodeArvore *nArv);
-
-// Função que faz alocação de memória e trata os ponteiros soltos acerca de nós da árvore
-// nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita);
-
-// Codigo velho
-/*<*arvore> buildHuffmanTree(int *bytesTable);
-freeHuffmanTree(<*arvore>)
-compressFile(<nome_arquivo>, <*lista_bytes>, <nome_arquivo_comprimido>)
-decompressFile(<nome_arquivo_comprimido>, <nome_arquivo>)*/
+// -------------------------------------------------------------------------------------------------
 
 int main (int argc, char *argv[]) {
 
    // Arquivo a ser aberto para processamento
    std::ifstream file;
    // Vetor para armanezar os nos que vao compor a arvore de Huffman
-   std::vector <NodeArvore*> listaNos;
+   std::vector<NodeArvore*> listaNos;
+   // Ponteiro para a raiz da arvore que sera construida
+   NodeArvore* raiz;
 
    file = openFile(argv[2]);
 
@@ -106,16 +94,12 @@ int main (int argc, char *argv[]) {
       }
    }
 
-   std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compare);
-
-   std::cout << "Size of the list: " << listaNos.size() << std::endl;
-   for (int i = 0; i < listaNos.size(); i++) {
-      std::cout << "Byte: " << listaNos[i]->getByte();
-      std::cout << ", Frequencia: " << listaNos[i]->getFrequencia() << std::endl;
-   }
+   raiz = buildHuffmanTree(listaNos);
 
    return 0;
 }
+
+// -------------------------------------------------------------------------------------------------
 
 std::ifstream openFile(char* filename) {
 
@@ -157,4 +141,31 @@ unsigned int* countByteFrequency(std::ifstream& file) {
    }
 
    return frequencyArray;
+}
+
+NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
+   NodeArvore* one;
+   NodeArvore* two;
+   NodeArvore* internalNode;
+
+   while (listaNos.size() > 1) {
+      std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compare);
+
+      one = listaNos[listaNos.size()-1];
+      listaNos.pop_back();
+      two = listaNos[listaNos.size()-1];
+      listaNos.pop_back();
+      internalNode = new NodeArvore(-1, one->getFrequencia() + two->getFrequencia(), one, two, nullptr);
+      one->setPai(internalNode);
+      two->setPai(internalNode);
+      listaNos.push_back(internalNode);
+
+      std::cout << "Size of the list: " << listaNos.size() << std::endl;
+      for (int i = 0; i < listaNos.size(); i++) {
+         std::cout << "Byte: " << listaNos[i]->getByte();
+         std::cout << ", Frequencia: " << listaNos[i]->getFrequencia() << std::endl;
+      }
+   }
+
+   return internalNode;
 }
