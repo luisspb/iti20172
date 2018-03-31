@@ -23,7 +23,7 @@
 #include <fstream>
 
 #define BYTE 256
-** Definição da árvore */
+/** Definição da árvore */
 typedef struct nodeArvore
 {
     int                 frequencia;
@@ -48,9 +48,10 @@ typedef struct lista
 
 // Prototipos de funcoes
 unsigned int* getByteFrequency(const char* filename);  // Filename with extension
+
 nodeLista *novoNodeLista(nodeArvore *nArv);
 nodeArvore *novoNodeArvore(byte c, int frequencia, nodeArvore *esquerda, nodeArvore *direita);
-nodeArvore *popMinLista(lista *l);
+nodeArvore *hopMinLista(lista *l);
 
 /*<*arvore> buildHuffmanTree(int *bytesTable);
 
