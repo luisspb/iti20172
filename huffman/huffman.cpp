@@ -37,6 +37,8 @@ public:
    NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai);
    int getByte();
    int getFrequencia();
+   NodeArvore* getEsquerda();
+   NodeArvore* getDireita();
    void setPai(NodeArvore* pai);
    static bool compare(NodeArvore* one, NodeArvore* two);  // Metodo de classe, nao precisa de instancia
 };
@@ -57,6 +59,14 @@ int NodeArvore::getFrequencia() {
    return this->frequencia;
 }
 
+NodeArvore* NodeArvore::getEsquerda() {
+   return this->esquerda;
+}
+
+NodeArvore* NodeArvore::getDireita() {
+   return this->direita;
+}
+
 void NodeArvore::setPai(NodeArvore* pai) {
    this->pai = pai;
 }
@@ -72,6 +82,10 @@ std::ifstream openFile(char* filename);
 unsigned int* countByteFrequency(std::ifstream& file);
 // A funcao que controi a arvore de Huffman recebe a lista de Nos e devolve o ponteiro para a raiz
 NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos);
+// Funcoes que percorrem a arvore e cria o codigo, um array com as posicoes sendo os bytes e os
+// valores do array sendo os codigos
+void traverseTree(NodeArvore* raiz, unsigned int* bytesCodes);
+void traverseMore(NodeArvore* node, unsigned int* bytesCodes, unsigned int code);
 
 // -------------------------------------------------------------------------------------------------
 
@@ -94,7 +108,14 @@ int main (int argc, char *argv[]) {
       }
    }
 
+   // Constroi a arvore de Huffman
    raiz = buildHuffmanTree(listaNos);
+
+   // Percorre a arvore e cria o codigo
+   traverseTree(raiz, bytesArray);
+
+   for (int i = 0; i < BYTE; i++)
+      std::cout << "Byte: " << i << ", Codigo: " << bytesArray[i] << std::endl;
 
    return 0;
 }
@@ -155,17 +176,32 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
       listaNos.pop_back();
       two = listaNos[listaNos.size()-1];
       listaNos.pop_back();
+      // O valor da variavel membro byte do internalNode eh sempre -1 porque ele nao representa um
+      // byte apenas
       internalNode = new NodeArvore(-1, one->getFrequencia() + two->getFrequencia(), one, two, nullptr);
       one->setPai(internalNode);
       two->setPai(internalNode);
       listaNos.push_back(internalNode);
-
-      std::cout << "Size of the list: " << listaNos.size() << std::endl;
-      for (int i = 0; i < listaNos.size(); i++) {
-         std::cout << "Byte: " << listaNos[i]->getByte();
-         std::cout << ", Frequencia: " << listaNos[i]->getFrequencia() << std::endl;
-      }
    }
 
    return internalNode;
+}
+
+void traverseTree(NodeArvore* raiz, unsigned int* bytesCodes) {
+
+   if (raiz->getEsquerda() != nullptr)
+      traverseMore(raiz->getEsquerda(), bytesCodes, 0);
+   if (raiz->getDireita() != nullptr)
+      traverseMore(raiz->getDireita(), bytesCodes, 1);
+}
+
+void traverseMore(NodeArvore* node, unsigned int* bytesCodes, unsigned int code) {
+
+   if (node->getByte() > -1)
+      bytesCodes[node->getByte()] = code;
+
+   if (node->getEsquerda() != nullptr)
+      traverseMore(node->getEsquerda(), bytesCodes, (code<<0));
+   if (node->getDireita() != nullptr)
+      traverseMore(node->getDireita(), bytesCodes, (code<<0)+1);
 }
