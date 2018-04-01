@@ -40,10 +40,12 @@ public:
    NodeArvore* getEsquerda();
    NodeArvore* getDireita();
    void setPai(NodeArvore* pai);
-   static bool compare(NodeArvore* one, NodeArvore* two);  // Metodo de classe, nao precisa de instancia
+   // Metodo de classe, nao precisa de instancia
+   static bool compare(NodeArvore* one, NodeArvore* two);
 };
 
-NodeArvore::NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai) {
+NodeArvore::NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita,
+                       NodeArvore* pai) {
    this->byte = byte;
    this->frequencia = frequencia;
    this->esquerda = esquerda;
@@ -88,7 +90,8 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos);
 // valores do array sendo os codigos
 void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code);
 // A funcao que comprime o arquivo em um vector de bytes
-void compactFile(std::vector<bool> bytesCodes[], std::vector<char>& compressedFile);
+void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
+                 std::vector<unsigned char>& compressedFile);
 // Funcao que grava a arvore em um array (para posterior gravacao em arquivo)
 void convertTree(NodeArvore* raiz, std::vector<int>& treeArray);
 // A funcao que abrira o arquivo de saida
@@ -96,7 +99,7 @@ std::ofstream createFile(char* filename);
 // Funcao que grava o arquivo de saida com o cabecalho (Numero de bytes seguido da arvore em array)
 // mais o conteudo compactado do arquivo de entrada
 void writeFile(std::ofstream& outputFile, unsigned fileLength, std::vector<int>& treeArray,
-               std::vector<char>& compressedFile);
+               std::vector<unsigned char>& compressedFile);
 
 // -------------------------------------------------------------------------------------------------
 
@@ -116,7 +119,7 @@ int main (int argc, char *argv[]) {
    // Array ponteiros para os vetores de codigos dos bytes
    std::vector<bool> bytesCodes[BYTE];
    // Vector de bytes para receber o arquivo compactado
-   std::vector<char> compressedFile;
+   std::vector<unsigned char> compressedFile;
    // Array para armanezar a arvore que sera gravado no arquivo de saida
    std::vector<int> treeArray;
    // Variavel que tera o stream do arquivo de saida
@@ -141,7 +144,7 @@ int main (int argc, char *argv[]) {
    traverseTree(raiz, bytesCodes, code);
 
    // Compacta o arquivo em um vector de bytes
-//   compactFile(bytesCodes, compressedFile);
+   compactFile(inputFile, fileLength, bytesCodes, compressedFile);
 
    // Grava arvore em array
 //   convertTree(raiz, treeArray);
@@ -181,8 +184,7 @@ unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray) {
 
    // Variavel para guardar o tamanho do arquivo em bytes
    unsigned int length;
-   // A leitura do arquivo se da byte por byte, cada byte eh
-   // primeiro armazenado no buffer
+   // A leitura do arquivo se da byte por byte, cada byte eh primeiro armazenado no buffer
    char buffer;
 
    // Obtem o tamanho do arquivo em numero de bytes
@@ -214,7 +216,8 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
       listaNos.pop_back();
       // O valor da variavel membro byte do internalNode eh sempre -1 porque ele nao representa um
       // byte apenas
-      internalNode = new NodeArvore(-1, one->getFrequencia() + two->getFrequencia(), one, two, nullptr);
+      internalNode = new NodeArvore(-1, one->getFrequencia() + two->getFrequencia(), one, two,
+                                    nullptr);
       one->setPai(internalNode);
       two->setPai(internalNode);
       listaNos.push_back(internalNode);
@@ -224,20 +227,67 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
 }
 
 void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code) {
+   std::vector<bool> left, right;
+   // Quando vai pro no esquerdo, acrescenta um '0' ao codigo
+   left = code;
+   left.push_back(0);
+   // Quando vai pro no direito, acrescenta um '1' ao codigo
+   right = code;
+   right.push_back(1);
 
-         std::vector<bool> left, right;
-         // Quando vai pro no esquerdo, acrescenta um '0' ao codigo
-         left = code;
-         left.push_back(0);
-         // Quando vai pro no direito, acrescenta um '1' ao codigo
-         right = code;
-         right.push_back(1);
+   if (raiz->getByte() > -1)
+      bytesCodes[raiz->getByte()] = code;
 
-      if (raiz->getByte() > -1)
-         bytesCodes[raiz->getByte()] = code;
-
-      if (raiz->getEsquerda() != nullptr)
-         traverseTree(raiz->getEsquerda(), bytesCodes, left);
-      if (raiz->getDireita() != nullptr)
-         traverseTree(raiz->getDireita(), bytesCodes, right);
+   if (raiz->getEsquerda() != nullptr)
+      traverseTree(raiz->getEsquerda(), bytesCodes, left);
+   if (raiz->getDireita() != nullptr)
+      traverseTree(raiz->getDireita(), bytesCodes, right);
 }
+
+void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
+                 std::vector<unsigned char>& compressedFile) {
+   // A leitura do arquivo se da byte por byte, cada byte eh primeiro armazenado no buffer
+   char buffer;
+   // O buffer eh depois convertido num byte sem sinal
+   unsigned char inputByte;
+   // Contador para contar os bits ateh completar um byte
+   unsigned char byteCounter = 0;
+   // Byte que eh montado para depois ser colocado no arquivo compactado
+   unsigned char outputByte = 0;
+
+   // Volta para o inicio do arquivo de entrada
+   file.seekg(0, std::ios::beg);
+
+   for (unsigned i = 0; i < fileLength; i++) {
+      file.read(&buffer, 1);
+      inputByte = static_cast<unsigned char>(buffer);
+
+      for (unsigned j = 0; j < bytesCodes[inputByte].size(); j++) {
+         if (bytesCodes[inputByte][j])
+            outputByte++;
+         byteCounter++;
+         if (byteCounter >= 8) {
+            compressedFile.push_back(outputByte);
+            byteCounter = 0;
+            outputByte = 0;
+         }
+         else
+            outputByte = outputByte << 1;
+      }  // for (unsigned j = 0...
+   }  // for (unsigned i = 0...
+
+   // Se o ultimo byte precisar ser completado, o codigo a seguir o completa com zeros.
+   // Note que o byte incompleto ja sai do loop dos for com um zero a mais no final, por isso agora
+   // a comparacao eh com 7 e nao mais com 8
+   while ((byteCounter > 0) && (byteCounter < 7)) {
+      byteCounter++;
+      outputByte = outputByte << 1;
+   }
+   // Se o que restou dos for aninhados foi um byte incompleto, agora ele esta completado com zeros
+   // e sera acrescentado no array do arquivo compactado
+   if (byteCounter >= 7)
+      compressedFile.push_back(outputByte);
+
+   std::cout << "Size of compressed bytes: " << compressedFile.size() << std::endl;
+
+}  // void compactFile...
