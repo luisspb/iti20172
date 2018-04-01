@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "NodeArvore.h"
+#include "common_functions.h"
 #include "compress_functions.h"
 #include "decompress_functions.h"
 

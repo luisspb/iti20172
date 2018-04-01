@@ -18,9 +18,6 @@ void interpretFile(std::ifstream& file, ...);
 //
 NodeArvore* decodeTree(...);
 
-// Mesma funcao da compressao, copiar de la ou criar um arquivo de funcoes em comum!
-void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code);
-
 //
 void decompressFile(...);
 

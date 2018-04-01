@@ -49,24 +49,6 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
    return internalNode;
 }
 
-void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code) {
-   std::vector<bool> left, right;
-   // Quando vai pro no esquerdo, acrescenta um '0' ao codigo
-   left = code;
-   left.push_back(0);
-   // Quando vai pro no direito, acrescenta um '1' ao codigo
-   right = code;
-   right.push_back(1);
-
-   if (raiz->getByte() > -1)
-      bytesCodes[raiz->getByte()] = code;
-
-   if (raiz->getEsquerda() != nullptr)
-      traverseTree(raiz->getEsquerda(), bytesCodes, left);
-   if (raiz->getDireita() != nullptr)
-      traverseTree(raiz->getDireita(), bytesCodes, right);
-}
-
 void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
                  std::vector<unsigned char>& compactedFile) {
    // A leitura do arquivo se da byte por byte, cada byte eh primeiro armazenado no buffer

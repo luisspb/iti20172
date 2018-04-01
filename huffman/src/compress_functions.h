@@ -21,10 +21,6 @@ unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray);
 // A funcao que controi a arvore de Huffman recebe a lista de Nos e devolve o ponteiro para a raiz
 NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos);
 
-// Funcoes que percorrem a arvore e cria o codigo, um array com as posicoes sendo os bytes e os
-// valores do array sendo os codigos
-void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code);
-
 // A funcao que comprime o arquivo em um vector de bytes
 void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
                  std::vector<unsigned char>& compactedFile);
