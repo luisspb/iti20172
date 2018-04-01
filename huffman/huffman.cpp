@@ -23,6 +23,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 #define BYTE 256
 
@@ -96,11 +97,11 @@ void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> byt
 // Funcao que grava a arvore em um array (para posterior gravacao em arquivo)
 void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray);
 // A funcao que abrira o arquivo de saida
-std::ofstream createFile(char* filename);
+std::ofstream createFile(char* originalFilename);
 // Funcao que grava o arquivo de saida com o cabecalho (Numero de bytes seguido da arvore em array)
 // mais o conteudo compactado do arquivo de entrada
-void writeFile(std::ofstream& file, unsigned fileLength, std::vector<unsigned char>& treeArray,
-               std::vector<unsigned char>& compressedFile);
+void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
+               std::vector<unsigned char>& treeArray, std::vector<unsigned char>& compressedFile);
 
 // -------------------------------------------------------------------------------------------------
 
@@ -155,17 +156,22 @@ int main (int argc, char *argv[]) {
    // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
    // O cabecalho eh composto por (nessa ordem):
    // 1) 4 bytes que representam o numero de bytes do arquivo original
-   // 2) 4 bytes que representam o numero de bytes do array da arvore
-   // 3) O array da arvore
-   // 4) 4 bytes que representam o numero de bytes do arquivo compactado
+   // 2) Nome do arquivo original (incluindo a extensao do arquivo)
+   // 3) 4 bytes que representam o numero de bytes do array da arvore
+   // 4) O array da arvore
+   // 5) 4 bytes que representam o numero de bytes do arquivo compactado
    //
    // Formato do arquivo gerado:
-   // ------------------ // ------------------ // -------- // ------------------ // ---------- //
-   // Numero de bytes do // Numero de bytes do // Array da // Numero de bytes do // Arquivo    //
-   // arquivo original   // array da arvore    // arvore   // arquivo compactado // compactado //
-   // ------------------ // ------------------ // -------- // ------------------ // ---------- //
+   // ------------------ // --------------- // ------------------ // -------- // ------------------
+   // Numero de bytes do // Nome do arquivo // Numero de bytes do // Array da // Numero de bytes do
+   // arquivo original   // original        // array da arvore    // arvore   // arquivo compactado
+   // ------------------ // --------------- // ------------------ // -------- // ------------------
+   // ---------- //
+   // Arquivo    //
+   // compactado //
+   // ---------- //
    outputFile = createFile(argv[2]);
-   writeFile(outputFile, fileLength, treeArray, compressedFile);
+   writeFile(outputFile, fileLength, argv[2], treeArray, compressedFile);
 
    inputFile.close();
    outputFile.close();
@@ -325,9 +331,12 @@ void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray) {
    }
 }
 
-std::ofstream createFile(char* filename) {
+std::ofstream createFile(char* originalFilename) {
    std::ofstream file;
    unsigned charsCounter = 0;
+   char filename[BYTE];
+
+  strcpy(filename, originalFilename);
 
    while (filename[charsCounter] != '\0')
       charsCounter++;
@@ -349,29 +358,39 @@ std::ofstream createFile(char* filename) {
    }
 }
 
-void writeFile(std::ofstream& file, unsigned fileLength, std::vector<unsigned char>& treeArray,
-               std::vector<unsigned char>& compressedFile) {
+void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
+               std::vector<unsigned char>& treeArray, std::vector<unsigned char>& compressedFile) {
+   // Variavel auxiliar para gravar o nome do arquivo original
+   unsigned charsCounter = 0;
+
    // Formato do arquivo:
    // 1) Tamanho do arquivo original
-   // 2) Tamanho da arvore codificada em um array
-   // 3) Arvore codificada
-   // 4) Tamanho do arquivo depois de compactado
-   // 5) Arquivo compactado
+   // 2) Nome do arquivo original (com extensao)
+   // 3) Tamanho da arvore codificada em um array
+   // 4) Arvore codificada
+   // 5) Tamanho do arquivo depois de compactado
+   // 6) Arquivo compactado
 
    // 1) Tamanho do arquivo original
    file << fileLength;
 
-   // 2) Tamanho da arvore codificada em um array
+   // 2) Nome do arquivo original (com extensao)
+   while (originalFilename[charsCounter] != '\0') {
+      file << (unsigned char) originalFilename[charsCounter];
+      charsCounter++;
+   }
+
+   // 3) Tamanho da arvore codificada em um array
    file << (unsigned) treeArray.size();
 
-   // 3) Arvore codificada
+   // 4) Arvore codificada
    for (unsigned i = 0; i < treeArray.size(); i++)
       file << treeArray[i];
 
-   // 4) Tamanho do arquivo depois de compactado
+   // 5) Tamanho do arquivo depois de compactado
    file << (unsigned) compressedFile.size();
 
-   // 5) Arquivo compactado
+   // 6) Arquivo compactado
    for (unsigned i = 0; i < compressedFile.size(); i++)
       file << compressedFile[i];
 
