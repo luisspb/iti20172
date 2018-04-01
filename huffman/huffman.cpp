@@ -151,8 +151,6 @@ int main (int argc, char *argv[]) {
    // Grava arvore em array
    encodeTree(raiz, treeArray);
    std::cout << "Size of encoded tree: " << treeArray.size() << std::endl;
-   for (unsigned i = 0; i < treeArray.size(); i++)
-      std::cout << (unsigned) treeArray[i] << std::endl;
 
    // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
    // O cabecalho eh composto por (nessa ordem):
@@ -166,32 +164,32 @@ int main (int argc, char *argv[]) {
    // Numero de bytes do // Numero de bytes do // Array da // Numero de bytes do // Arquivo    //
    // arquivo original   // array da arvore    // arvore   // arquivo compactado // compactado //
    // ------------------ // ------------------ // -------- // ------------------ // ---------- //
-//   outputFile = createFile(argv[2]);
+   outputFile = createFile(argv[2]);
 //   writeFile(outputFile, fileLength, treeArray, compressedFile);
 
+   inputFile.close();
+   outputFile.close();
    return 0;
 }
 
 // -------------------------------------------------------------------------------------------------
 
 std::ifstream openFile(char* filename) {
-
    std::ifstream file;
 
-   std::cout << "Opening file: " << filename << std::endl;
+   std::cout << "Opening input file: " << filename << std::endl;
    file.open(filename, std::ios::in | std::ios::binary);
 
    if(file.is_open()) {
       return file;
    }
    else {
-      std::cerr << "Error opening file: " << filename << std::endl;
+      std::cerr << "Error opening input file: " << filename << std::endl;
       exit(1);
    }
 }
 
 unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray) {
-
    // Variavel para guardar o tamanho do arquivo em bytes
    unsigned int length;
    // A leitura do arquivo se da byte por byte, cada byte eh primeiro armazenado no buffer
@@ -324,5 +322,29 @@ void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray) {
       treeArray.push_back(0);
       encodeTree(raiz->getEsquerda(), treeArray);
       encodeTree(raiz->getDireita(), treeArray);
+   }
+}
+
+std::ofstream createFile(char* filename) {
+   std::ofstream file;
+   unsigned charsCounter = 0;
+
+   while (filename[charsCounter] != '\0')
+      charsCounter++;
+
+   // Muda a entensao do arquivo
+   filename[charsCounter-3] = 'h';
+   filename[charsCounter-2] = 'u';
+   filename[charsCounter-1] = 'f';
+
+   std::cout << "Opening output file: " << filename << std::endl;
+   file.open(filename, std::ios::out | std::ios::binary);
+
+   if(file.is_open()) {
+      return file;
+   }
+   else {
+      std::cerr << "Error opening output file: " << filename << std::endl;
+      exit(1);
    }
 }
