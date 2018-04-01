@@ -67,8 +67,8 @@ void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<
       traverseTree(raiz->getDireita(), bytesCodes, right);
 }
 
-void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
-                 std::vector<unsigned char>& compressedFile) {
+void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
+                 std::vector<unsigned char>& compactedFile) {
    // A leitura do arquivo se da byte por byte, cada byte eh primeiro armazenado no buffer
    char buffer;
    // O buffer eh depois convertido num byte sem sinal
@@ -90,7 +90,7 @@ void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> byt
             outputByte++;
          byteCounter++;
          if (byteCounter >= 8) {
-            compressedFile.push_back(outputByte);
+            compactedFile.push_back(outputByte);
             byteCounter = 0;
             outputByte = 0;
          }
@@ -109,11 +109,11 @@ void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> byt
    // Se o que restou dos for aninhados foi um byte incompleto, agora ele esta completado com zeros
    // e sera acrescentado no array do arquivo compactado
    if (byteCounter >= 7)
-      compressedFile.push_back(outputByte);
+      compactedFile.push_back(outputByte);
 
-   std::cout << "Size of compressed bytes: " << compressedFile.size() << std::endl;
+   std::cout << "Size of compressed bytes: " << compactedFile.size() << std::endl;
 
-}  // void compactFile...
+}  // void compressFile...
 
 void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray) {
    unsigned frequency;
@@ -168,7 +168,7 @@ std::ofstream createCompressedFile(char* originalFilename) {
 }
 
 void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
-               std::vector<unsigned char>& treeArray, std::vector<unsigned char>& compressedFile) {
+               std::vector<unsigned char>& treeArray, std::vector<unsigned char>& compactedFile) {
    // Variavel auxiliar para gravar o nome do arquivo original
    unsigned charsCounter = 0;
    // Variavel auxiliar para quebrar o valor do tamanho do arquivo original em 4 bytes
@@ -220,7 +220,7 @@ void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* origina
       file << treeArray[i];
 
    // 5) Tamanho do arquivo depois de compactado
-   compressedSize = compressedFile.size();
+   compressedSize = compactedFile.size();
    compressedSizeBytes[0] = compressedSize % 256;
    compressedSize /= 256;
    compressedSizeBytes[1] = compressedSize % 256;
@@ -231,8 +231,8 @@ void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* origina
       file << compressedSizeBytes[i];
 
    // 6) Arquivo compactado
-   for (unsigned i = 0; i < compressedFile.size(); i++)
-      file << compressedFile[i];
+   for (unsigned i = 0; i < compactedFile.size(); i++)
+      file << compactedFile[i];
 
    std::cout << "File compressed!" << std::endl << std::endl;
 }

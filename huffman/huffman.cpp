@@ -48,7 +48,7 @@ int main (int argc, char *argv[]) {
       compress(argv[2], inputFile, outputFile);
    }
    else if (*argv[1] == 'x') {
-      //decompress(inputFile, outputFile);
+      decompress(inputFile, outputFile);
    }
 
    inputFile.close();
@@ -84,7 +84,7 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    // Array ponteiros para os vetores de codigos dos bytes
    std::vector<bool> bytesCodes[BYTE];
    // Vector de bytes para receber o arquivo compactado
-   std::vector<unsigned char> compressedFile;
+   std::vector<unsigned char> compactedFile;
    // Array para armanezar a arvore que sera gravado no arquivo de saida
    std::vector<unsigned char> treeArray;
 
@@ -106,7 +106,7 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    traverseTree(raiz, bytesCodes, code);
 
    // Compacta o arquivo em um vector de bytes
-   compactFile(inputFile, fileLength, bytesCodes, compressedFile);
+   compressFile(inputFile, fileLength, bytesCodes, compactedFile);
 
    // Grava arvore em array
    encodeTree(raiz, treeArray);
@@ -130,5 +130,11 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    // compactado //
    // ---------- //
    outputFile = createCompressedFile(originalFilename);
-   writeCompressedFile(outputFile, fileLength, originalFilename, treeArray, compressedFile);
+   writeCompressedFile(outputFile, fileLength, originalFilename, treeArray, compactedFile);
+}
+
+void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
+
+
+
 }

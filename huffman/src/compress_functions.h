@@ -26,8 +26,8 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos);
 void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code);
 
 // A funcao que comprime o arquivo em um vector de bytes
-void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
-                 std::vector<unsigned char>& compressedFile);
+void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
+                 std::vector<unsigned char>& compactedFile);
 
 // Funcao que grava a arvore em um array (para posterior gravacao em arquivo)
 void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray);
@@ -39,6 +39,6 @@ std::ofstream createCompressedFile(char* originalFilename);
 // mais o conteudo compactado do arquivo de entrada
 void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
                          std::vector<unsigned char>& treeArray,
-                         std::vector<unsigned char>& compressedFile);
+                         std::vector<unsigned char>& compactedFile);
 
 #endif
