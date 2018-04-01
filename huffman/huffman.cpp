@@ -84,8 +84,7 @@ unsigned int* countByteFrequency(std::ifstream& file);
 NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos);
 // Funcoes que percorrem a arvore e cria o codigo, um array com as posicoes sendo os bytes e os
 // valores do array sendo os codigos
-void traverseTree(NodeArvore* raiz, unsigned int* bytesCodes);
-void traverseMore(NodeArvore* node, unsigned int* bytesCodes, unsigned int code);
+void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code);
 
 // -------------------------------------------------------------------------------------------------
 
@@ -97,6 +96,8 @@ int main (int argc, char *argv[]) {
    std::vector<NodeArvore*> listaNos;
    // Ponteiro para a raiz da arvore que sera construida
    NodeArvore* raiz;
+   // Array ponteiros para os vetores de codigos dos bytes
+   std::vector<bool> bytesCodes[BYTE];
 
    file = openFile(argv[2]);
 
@@ -112,10 +113,18 @@ int main (int argc, char *argv[]) {
    raiz = buildHuffmanTree(listaNos);
 
    // Percorre a arvore e cria o codigo
-   traverseTree(raiz, bytesArray);
+   // Passa um vector de bool nao incializado
+   std::vector<bool> code;
+   traverseTree(raiz, bytesCodes, code);
 
-   for (int i = 0; i < BYTE; i++)
-      std::cout << "Byte: " << i << ", Codigo: " << bytesArray[i] << std::endl;
+   for (unsigned i = 0; i < BYTE; i++) {
+      if (bytesCodes[i].size()) {
+         std::cout << "Byte: " << i << ", Codigo: ";
+         for (unsigned j = 0; j < bytesCodes[i].size(); j++)
+            std::cout << bytesCodes[i][j];
+         std::cout << std::endl;
+      }
+   }
 
    return 0;
 }
@@ -156,7 +165,7 @@ unsigned int* countByteFrequency(std::ifstream& file) {
 
    std::cout << "Number of bytes read: " << length << std::endl;
 
-   for (unsigned int i = 0; i < length; i++) {
+   for (unsigned i = 0; i < length; i++) {
       file.read(&buffer, 1);
       frequencyArray[static_cast<unsigned char>(buffer)]++;
    }
@@ -167,7 +176,7 @@ unsigned int* countByteFrequency(std::ifstream& file) {
 NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
    NodeArvore* one;
    NodeArvore* two;
-   NodeArvore* internalNode;
+   NodeArvore* internalNode = nullptr;
 
    while (listaNos.size() > 1) {
       std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compare);
@@ -187,21 +196,21 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
    return internalNode;
 }
 
-void traverseTree(NodeArvore* raiz, unsigned int* bytesCodes) {
+void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code) {
 
-   if (raiz->getEsquerda() != nullptr)
-      traverseMore(raiz->getEsquerda(), bytesCodes, 0);
-   if (raiz->getDireita() != nullptr)
-      traverseMore(raiz->getDireita(), bytesCodes, 1);
-}
+         std::vector<bool> left, right;
+         // Quando vai pro no esquerdo, acrescenta um '0' ao codigo
+         left = code;
+         left.push_back(0);
+         // Quando vai pro no direito, acrescenta um '1' ao codigo
+         right = code;
+         right.push_back(1);
 
-void traverseMore(NodeArvore* node, unsigned int* bytesCodes, unsigned int code) {
+      if (raiz->getByte() > -1)
+         bytesCodes[raiz->getByte()] = code;
 
-   if (node->getByte() > -1)
-      bytesCodes[node->getByte()] = code;
-
-   if (node->getEsquerda() != nullptr)
-      traverseMore(node->getEsquerda(), bytesCodes, (code<<0));
-   if (node->getDireita() != nullptr)
-      traverseMore(node->getDireita(), bytesCodes, (code<<0)+1);
+      if (raiz->getEsquerda() != nullptr)
+         traverseTree(raiz->getEsquerda(), bytesCodes, left);
+      if (raiz->getDireita() != nullptr)
+         traverseTree(raiz->getDireita(), bytesCodes, right);
 }
