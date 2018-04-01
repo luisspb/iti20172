@@ -157,4 +157,18 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
                  compactedFileSize, compactedFile);
 
    raiz = decodeTree(treeArray);
+
+   // Percorre a arvore e recria o codigo
+   // Passa um vector de bool nao incializado
+   std::vector<bool> code;
+   traverseTree(raiz, bytesCodes, code);
+
+   for (unsigned i = 0; i < BYTE; i++) {
+      if (bytesCodes[i].size()) {
+         std::cout << "Byte: " << i << ", Code: ";
+         for (unsigned j = 0; j < bytesCodes[i].size(); j++)
+            std::cout << bytesCodes[i][j];
+         std::cout << std::endl;
+      }
+   }
 }
