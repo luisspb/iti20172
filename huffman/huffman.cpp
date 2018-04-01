@@ -29,14 +29,15 @@
 // Definicao da classe dos nos da arvore
 class NodeArvore {
    int                 byte;
-   int                 frequencia;
+   unsigned            frequencia;
    NodeArvore*         esquerda;
    NodeArvore*         direita;
    NodeArvore*         pai;
 public:
-   NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita, NodeArvore* pai);
+   NodeArvore(int byte, unsigned frequencia, NodeArvore* esquerda, NodeArvore* direita,
+              NodeArvore* pai);
    int getByte();
-   int getFrequencia();
+   unsigned getFrequencia();
    NodeArvore* getEsquerda();
    NodeArvore* getDireita();
    void setPai(NodeArvore* pai);
@@ -44,7 +45,7 @@ public:
    static bool compare(NodeArvore* one, NodeArvore* two);
 };
 
-NodeArvore::NodeArvore(int byte, int frequencia, NodeArvore* esquerda, NodeArvore* direita,
+NodeArvore::NodeArvore(int byte, unsigned frequencia, NodeArvore* esquerda, NodeArvore* direita,
                        NodeArvore* pai) {
    this->byte = byte;
    this->frequencia = frequencia;
@@ -57,7 +58,7 @@ int NodeArvore::getByte() {
    return this->byte;
 }
 
-int NodeArvore::getFrequencia() {
+unsigned NodeArvore::getFrequencia() {
    return this->frequencia;
 }
 
@@ -93,12 +94,12 @@ void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<
 void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
                  std::vector<unsigned char>& compressedFile);
 // Funcao que grava a arvore em um array (para posterior gravacao em arquivo)
-void convertTree(NodeArvore* raiz, std::vector<int>& treeArray);
+void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray);
 // A funcao que abrira o arquivo de saida
 std::ofstream createFile(char* filename);
 // Funcao que grava o arquivo de saida com o cabecalho (Numero de bytes seguido da arvore em array)
 // mais o conteudo compactado do arquivo de entrada
-void writeFile(std::ofstream& outputFile, unsigned fileLength, std::vector<int>& treeArray,
+void writeFile(std::ofstream& outputFile, unsigned fileLength, std::vector<unsigned char>& treeArray,
                std::vector<unsigned char>& compressedFile);
 
 // -------------------------------------------------------------------------------------------------
@@ -121,7 +122,7 @@ int main (int argc, char *argv[]) {
    // Vector de bytes para receber o arquivo compactado
    std::vector<unsigned char> compressedFile;
    // Array para armanezar a arvore que sera gravado no arquivo de saida
-   std::vector<int> treeArray;
+   std::vector<unsigned char> treeArray;
    // Variavel que tera o stream do arquivo de saida
    std::ofstream outputFile;
 
@@ -129,6 +130,7 @@ int main (int argc, char *argv[]) {
 
    fileLength = countByteFrequency(inputFile, bytesArray);
 
+   // Cria a lista com os nos folha da arvore de Huffman
    for (int i = 0; i < BYTE; i++) {
       if (bytesArray[i] != 0) {
          listaNos.push_back(new NodeArvore(i, bytesArray[i], nullptr, nullptr, nullptr));
@@ -147,15 +149,23 @@ int main (int argc, char *argv[]) {
    compactFile(inputFile, fileLength, bytesCodes, compressedFile);
 
    // Grava arvore em array
-//   convertTree(raiz, treeArray);
+   encodeTree(raiz, treeArray);
+   std::cout << "Size of encoded tree: " << treeArray.size() << std::endl;
+   for (unsigned i = 0; i < treeArray.size(); i++)
+      std::cout << (unsigned) treeArray[i] << std::endl;
 
    // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
-   // O cabecalho comeca com 4 bytes que representam o numero de bytes do arquivo original, seguidos
-   // do array da arvore de Huffman
+   // O cabecalho eh composto por (nessa ordem):
+   // 1) 4 bytes que representam o numero de bytes do arquivo original
+   // 2) 4 bytes que representam o numero de bytes do array da arvore
+   // 3) O array da arvore
+   // 4) 4 bytes que representam o numero de bytes do arquivo compactado
+   //
    // Formato do arquivo gerado:
-   // --------------- // ------------------ // ------------------ //
-   // Numero de bytes // Array com a arvore // Arquivo compactado //
-   // --------------- // ------------------ // ------------------ //
+   // ------------------ // ------------------ // -------- // ------------------ // ---------- //
+   // Numero de bytes do // Numero de bytes do // Array da // Numero de bytes do // Arquivo    //
+   // arquivo original   // array da arvore    // arvore   // arquivo compactado // compactado //
+   // ------------------ // ------------------ // -------- // ------------------ // ---------- //
 //   outputFile = createFile(argv[2]);
 //   writeFile(outputFile, fileLength, treeArray, compressedFile);
 
@@ -291,3 +301,28 @@ void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> byt
    std::cout << "Size of compressed bytes: " << compressedFile.size() << std::endl;
 
 }  // void compactFile...
+
+void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray) {
+   unsigned frequency;
+
+   // Se eh um no folha, grava byte igual a 1 e em seguinda o valor do byte do no seguido do valor
+   // da frequencia dele
+   if (raiz->getByte() > -1) {
+      treeArray.push_back(1);
+      treeArray.push_back(raiz->getByte());
+      // Divide o unsigned em 4 bytes e os grava no array
+      frequency = raiz->getFrequencia();
+      treeArray.push_back(frequency % 256);
+      frequency /= 256;
+      treeArray.push_back(frequency % 256);
+      frequency /= 256;
+      treeArray.push_back(frequency % 256);
+      treeArray.push_back(frequency / 256);
+   }
+   // Se nao eh um no folha, grava byte igual a 0 e vai descendo na arvore, primeiro para a esquerda
+   else {
+      treeArray.push_back(0);
+      encodeTree(raiz->getEsquerda(), treeArray);
+      encodeTree(raiz->getDireita(), treeArray);
+   }
+}
