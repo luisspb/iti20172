@@ -4,6 +4,7 @@
 #include "compress_functions.h"
 
 // Funcoes para Compressao
+
 unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray) {
    // Variavel para guardar o tamanho do arquivo em bytes
    unsigned int length;
@@ -107,12 +108,12 @@ void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray) {
       treeArray.push_back(raiz->getByte());
       // Divide o unsigned em 4 bytes e os grava no array
       frequency = raiz->getFrequencia();
-      treeArray.push_back(frequency % 256);
-      frequency /= 256;
-      treeArray.push_back(frequency % 256);
-      frequency /= 256;
-      treeArray.push_back(frequency % 256);
-      treeArray.push_back(frequency / 256);
+      treeArray.push_back(frequency % BYTE);
+      frequency /= BYTE;
+      treeArray.push_back(frequency % BYTE);
+      frequency /= BYTE;
+      treeArray.push_back(frequency % BYTE);
+      treeArray.push_back(frequency / BYTE);
    }
    // Se nao eh um no folha, grava byte igual a 0 e vai descendo na arvore, primeiro para a esquerda
    else {
@@ -159,8 +160,8 @@ void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* origina
    unsigned treeSize;
    unsigned char treeSizeBytes[4];
    // Variavel auxiliar para quebrar o valor do tamanho do arquivo compactado em 4 bytes
-   unsigned compressedSize;
-   unsigned char compressedSizeBytes[4];
+   unsigned compactedSize;
+   unsigned char compactedSizeBytes[4];
 
    // Formato do arquivo:
    // 1) Tamanho do arquivo original
@@ -171,12 +172,12 @@ void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* origina
    // 6) Arquivo compactado
 
    // 1) Tamanho do arquivo original
-   fileLengthBytes[0] = fileLength % 256;
-   fileLength /= 256;
-   fileLengthBytes[1] = fileLength % 256;
-   fileLength /= 256;
-   fileLengthBytes[2] = fileLength % 256;
-   fileLengthBytes[3] = fileLength / 256;
+   fileLengthBytes[0] = fileLength % BYTE;
+   fileLength /= BYTE;
+   fileLengthBytes[1] = fileLength % BYTE;
+   fileLength /= BYTE;
+   fileLengthBytes[2] = fileLength % BYTE;
+   fileLengthBytes[3] = fileLength / BYTE;
    for (int i = 0; i < 4; i++)
       file << fileLengthBytes[i];
 
@@ -188,12 +189,12 @@ void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* origina
 
    // 3) Tamanho da arvore codificada em um array
    treeSize = treeArray.size();
-   treeSizeBytes[0] = treeSize % 256;
-   treeSize /= 256;
-   treeSizeBytes[1] = treeSize % 256;
-   treeSize /= 256;
-   treeSizeBytes[2] = treeSize % 256;
-   treeSizeBytes[3] = treeSize / 256;
+   treeSizeBytes[0] = treeSize % BYTE;
+   treeSize /= BYTE;
+   treeSizeBytes[1] = treeSize % BYTE;
+   treeSize /= BYTE;
+   treeSizeBytes[2] = treeSize % BYTE;
+   treeSizeBytes[3] = treeSize / BYTE;
    for (int i = 0; i < 4; i++)
       file << treeSizeBytes[i];
 
@@ -202,15 +203,15 @@ void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* origina
       file << treeArray[i];
 
    // 5) Tamanho do arquivo depois de compactado
-   compressedSize = compactedFile.size();
-   compressedSizeBytes[0] = compressedSize % 256;
-   compressedSize /= 256;
-   compressedSizeBytes[1] = compressedSize % 256;
-   compressedSize /= 256;
-   compressedSizeBytes[2] = compressedSize % 256;
-   compressedSizeBytes[3] = compressedSize / 256;
+   compactedSize = compactedFile.size();
+   compactedSizeBytes[0] = compactedSize % BYTE;
+   compactedSize /= BYTE;
+   compactedSizeBytes[1] = compactedSize % BYTE;
+   compactedSize /= BYTE;
+   compactedSizeBytes[2] = compactedSize % BYTE;
+   compactedSizeBytes[3] = compactedSize / BYTE;
    for (int i = 0; i < 4; i++)
-      file << compressedSizeBytes[i];
+      file << compactedSizeBytes[i];
 
    // 6) Arquivo compactado
    for (unsigned i = 0; i < compactedFile.size(); i++)

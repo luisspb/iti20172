@@ -7,13 +7,17 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
+#include <string>
 
 #include "NodeArvore.h"
 
 // Prototipos das funcoes para Descompressao
 
-//
-void interpretFile(std::ifstream& file, ...);
+// Funcao que ler e interpreta os bytes do arquivo compactado, separando conforme seus significados
+void interpretFile(std::ifstream& file, unsigned& originalFileLength, std::string& originalFilename,
+                   unsigned& treeArraySize, std::vector<unsigned char>& treeArray,
+                   unsigned& compactedFileSize, std::vector<unsigned char>& compactedFile);
 
 //
 NodeArvore* decodeTree(...);

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 
 #include "NodeArvore.h"
 #include "common_functions.h"
@@ -135,7 +136,19 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
 }
 
 void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
+   // Variavel para guardar o tamanho do arquivo original em bytes
+   unsigned originalFileLength;
+   // String para guardar o nome do arquivo original mais sua extensao
+   std::string originalFilename;
+   // Variavel para o tamanho do array da arvore que sera lida do arquivo compactado
+   unsigned treeArraySize;
+   // Array para armanezar a arvore codificada
+   std::vector<unsigned char> treeArray;
+   // Variavel para o tamanho dos bytes compactados do arquivo original
+   unsigned compactedFileSize;
+   // Array para armanezar os bytes lidos do arquivo compactado
+   std::vector<unsigned char> compactedFile;
 
-
-
+   interpretFile(inputFile, originalFileLength, originalFilename, treeArraySize, treeArray,
+                 compactedFileSize, compactedFile);
 }
