@@ -362,6 +362,14 @@ void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
                std::vector<unsigned char>& treeArray, std::vector<unsigned char>& compressedFile) {
    // Variavel auxiliar para gravar o nome do arquivo original
    unsigned charsCounter = 0;
+   // Variavel auxiliar para quebrar o valor do tamanho do arquivo original em 4 bytes
+   unsigned char fileLengthBytes[4];
+   // Variaveis auxiliares para quebrar o valor do tamanho da arvore codificada em 4 bytes
+   unsigned treeSize;
+   unsigned char treeSizeBytes[4];
+   // Variavel auxiliar para quebrar o valor do tamanho do arquivo compactado em 4 bytes
+   unsigned compressedSize;
+   unsigned char compressedSizeBytes[4];
 
    // Formato do arquivo:
    // 1) Tamanho do arquivo original
@@ -372,7 +380,14 @@ void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
    // 6) Arquivo compactado
 
    // 1) Tamanho do arquivo original
-   file << fileLength;
+   fileLengthBytes[0] = fileLength % 256;
+   fileLength /= 256;
+   fileLengthBytes[1] = fileLength % 256;
+   fileLength /= 256;
+   fileLengthBytes[2] = fileLength % 256;
+   fileLengthBytes[3] = fileLength / 256;
+   for (int i = 0; i < 4; i++)
+      file << fileLengthBytes[i];
 
    // 2) Nome do arquivo original (com extensao)
    while (originalFilename[charsCounter] != '\0') {
@@ -381,14 +396,30 @@ void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
    }
 
    // 3) Tamanho da arvore codificada em um array
-   file << (unsigned) treeArray.size();
+   treeSize = treeArray.size();
+   treeSizeBytes[0] = treeSize % 256;
+   treeSize /= 256;
+   treeSizeBytes[1] = treeSize % 256;
+   treeSize /= 256;
+   treeSizeBytes[2] = treeSize % 256;
+   treeSizeBytes[3] = treeSize / 256;
+   for (int i = 0; i < 4; i++)
+      file << treeSizeBytes[i];
 
    // 4) Arvore codificada
    for (unsigned i = 0; i < treeArray.size(); i++)
       file << treeArray[i];
 
    // 5) Tamanho do arquivo depois de compactado
-   file << (unsigned) compressedFile.size();
+   compressedSize = compressedFile.size();
+   compressedSizeBytes[0] = compressedSize % 256;
+   compressedSize /= 256;
+   compressedSizeBytes[1] = compressedSize % 256;
+   compressedSize /= 256;
+   compressedSizeBytes[2] = compressedSize % 256;
+   compressedSizeBytes[3] = compressedSize / 256;
+   for (int i = 0; i < 4; i++)
+      file << compressedSizeBytes[i];
 
    // 6) Arquivo compactado
    for (unsigned i = 0; i < compressedFile.size(); i++)
