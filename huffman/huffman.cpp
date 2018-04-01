@@ -99,7 +99,7 @@ void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray);
 std::ofstream createFile(char* filename);
 // Funcao que grava o arquivo de saida com o cabecalho (Numero de bytes seguido da arvore em array)
 // mais o conteudo compactado do arquivo de entrada
-void writeFile(std::ofstream& outputFile, unsigned fileLength, std::vector<unsigned char>& treeArray,
+void writeFile(std::ofstream& file, unsigned fileLength, std::vector<unsigned char>& treeArray,
                std::vector<unsigned char>& compressedFile);
 
 // -------------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ int main (int argc, char *argv[]) {
    // arquivo original   // array da arvore    // arvore   // arquivo compactado // compactado //
    // ------------------ // ------------------ // -------- // ------------------ // ---------- //
    outputFile = createFile(argv[2]);
-//   writeFile(outputFile, fileLength, treeArray, compressedFile);
+   writeFile(outputFile, fileLength, treeArray, compressedFile);
 
    inputFile.close();
    outputFile.close();
@@ -347,4 +347,33 @@ std::ofstream createFile(char* filename) {
       std::cerr << "Error opening output file: " << filename << std::endl;
       exit(1);
    }
+}
+
+void writeFile(std::ofstream& file, unsigned fileLength, std::vector<unsigned char>& treeArray,
+               std::vector<unsigned char>& compressedFile) {
+   // Formato do arquivo:
+   // 1) Tamanho do arquivo original
+   // 2) Tamanho da arvore codificada em um array
+   // 3) Arvore codificada
+   // 4) Tamanho do arquivo depois de compactado
+   // 5) Arquivo compactado
+
+   // 1) Tamanho do arquivo original
+   file << fileLength;
+
+   // 2) Tamanho da arvore codificada em um array
+   file << (unsigned) treeArray.size();
+
+   // 3) Arvore codificada
+   for (unsigned i = 0; i < treeArray.size(); i++)
+      file << treeArray[i];
+
+   // 4) Tamanho do arquivo depois de compactado
+   file << (unsigned) compressedFile.size();
+
+   // 5) Arquivo compactado
+   for (unsigned i = 0; i < compressedFile.size(); i++)
+      file << compressedFile[i];
+
+   std::cout << "File compressed!" << std::endl;
 }
