@@ -98,6 +98,7 @@ void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> by
 
 }  // void compressFile...
 
+//https://stackoverflow.com/questions/759707/efficient-way-of-storing-huffman-tree
 void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray) {
    unsigned frequency;
 

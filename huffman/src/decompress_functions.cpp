@@ -54,9 +54,11 @@ void interpretFile(std::ifstream& file, unsigned& originalFileLength, std::strin
    std::cout << "Coded tree array size: " << treeArraySize << std::endl;
 
    // 4) Arvore codificada
-   for (unsigned i = 0; i < treeArraySize; i++) {
+   // Le a arvore de tras para frente, vai facilitar no processo de decodificacao
+   treeArray.resize(treeArraySize);
+   for (int i = treeArraySize - 1; i >= 0; i--) {
       file.read(&buffer, 1);
-      treeArray.push_back(static_cast<unsigned char>(buffer));
+      treeArray[i] = static_cast<unsigned char>(buffer);
    }
 
    // 5) Tamanho do arquivo depois de compactado
@@ -71,5 +73,30 @@ void interpretFile(std::ifstream& file, unsigned& originalFileLength, std::strin
    for (unsigned i = 0; i < compactedFileSize; i++) {
       file.read(&buffer, 1);
       compactedFile.push_back(static_cast<unsigned char>(buffer));
+   }
+}
+
+//https://stackoverflow.com/questions/759707/efficient-way-of-storing-huffman-tree
+NodeArvore* decodeTree(std::vector<unsigned char>& treeArray) {
+   int byte;
+   unsigned frequency = 0;
+   NodeArvore* left;
+   NodeArvore* right;
+
+   if (treeArray.back() == 1) {
+      treeArray.pop_back();
+      byte = treeArray.back();
+      treeArray.pop_back();
+      for (int i = 0; i < 4; i++) {
+         frequency += pow(BYTE, i) * treeArray.back();
+         treeArray.pop_back();
+      }
+      return new NodeArvore(byte, frequency, nullptr, nullptr, nullptr);
+   }
+   else {
+      treeArray.pop_back();
+      left = decodeTree(treeArray);
+      right = decodeTree(treeArray);
+      return new NodeArvore(-1, 0, left, right, nullptr);
    }
 }

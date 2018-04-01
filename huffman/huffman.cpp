@@ -148,7 +148,13 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
    unsigned compactedFileSize;
    // Array para armanezar os bytes lidos do arquivo compactado
    std::vector<unsigned char> compactedFile;
+   // Ponteiro para a raiz da arvore que sera reconstruida
+   NodeArvore* raiz;
+   // Array ponteiros para os vetores de codigos dos bytes
+   std::vector<bool> bytesCodes[BYTE];
 
    interpretFile(inputFile, originalFileLength, originalFilename, treeArraySize, treeArray,
                  compactedFileSize, compactedFile);
+
+   raiz = decodeTree(treeArray);
 }
