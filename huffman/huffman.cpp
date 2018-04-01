@@ -16,8 +16,8 @@
 // Comando de compilacao: g++ -std=gnu++11 -pedantic -O2 -Wall -lm -o huffman huffman.cpp
 //
 // Sintaxe do binario:
-// Compressao: ./huffman -c <arquivo de entrada - descomprimido> <arquivo de saida - comprimido>
-// Descompressao: ./huffman -x <arquivo de entrada - comprimido> <arquivo de saida - descomprimido>
+// Compressao: ./huffman c <arquivo de entrada - descomprimido> <arquivo de saida - comprimido>
+// Descompressao: ./huffman x <arquivo de entrada - comprimido> <arquivo de saida - descomprimido>
 
 #include <iostream>
 #include <fstream>
@@ -83,6 +83,8 @@ bool NodeArvore::compare(NodeArvore* one, NodeArvore* two) {
 
 // A funcao que abre o arquivo recebe nome do arquivo com a extensao
 std::ifstream openFile(char* filename);
+
+// Funcoes para Compressao
 // A funcao que gera o array com a frequencia dos bytes recebe como argumentos a variavel do arquivo
 // e o array em que armazenara as frequencias, ela retorna o tamanho do arquivo em bytes
 unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray);
@@ -97,11 +99,14 @@ void compactFile(std::ifstream& file, unsigned fileLength, std::vector<bool> byt
 // Funcao que grava a arvore em um array (para posterior gravacao em arquivo)
 void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray);
 // A funcao que abrira o arquivo de saida
-std::ofstream createFile(char* originalFilename);
+std::ofstream createCompressedFile(char* originalFilename);
 // Funcao que grava o arquivo de saida com o cabecalho (Numero de bytes seguido da arvore em array)
 // mais o conteudo compactado do arquivo de entrada
-void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
+void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
                std::vector<unsigned char>& treeArray, std::vector<unsigned char>& compressedFile);
+
+// Funcoes para Descompressao
+
 
 // -------------------------------------------------------------------------------------------------
 
@@ -109,69 +114,74 @@ int main (int argc, char *argv[]) {
 
    // Arquivo a ser aberto para processamento
    std::ifstream inputFile;
-   // Cria array de frequencia de bytes com todas as posicoes
-   // inicialmente com zero
-   unsigned bytesArray[BYTE] = {0};
-   // Variavel para guardar o tamanho do arquivo em bytes
-   unsigned fileLength;
-   // Vetor para armanezar os nos que vao compor a arvore de Huffman
-   std::vector<NodeArvore*> listaNos;
-   // Ponteiro para a raiz da arvore que sera construida
-   NodeArvore* raiz;
-   // Array ponteiros para os vetores de codigos dos bytes
-   std::vector<bool> bytesCodes[BYTE];
-   // Vector de bytes para receber o arquivo compactado
-   std::vector<unsigned char> compressedFile;
-   // Array para armanezar a arvore que sera gravado no arquivo de saida
-   std::vector<unsigned char> treeArray;
    // Variavel que tera o stream do arquivo de saida
    std::ofstream outputFile;
 
    inputFile = openFile(argv[2]);
 
-   fileLength = countByteFrequency(inputFile, bytesArray);
+   if (*argv[1] == 'c') {
+      // Cria array de frequencia de bytes com todas as posicoes inicialmente com zero
+      unsigned bytesArray[BYTE] = {0};
+      // Variavel para guardar o tamanho do arquivo em bytes
+      unsigned fileLength;
+      // Vetor para armanezar os nos que vao compor a arvore de Huffman
+      std::vector<NodeArvore*> listaNos;
+      // Ponteiro para a raiz da arvore que sera construida
+      NodeArvore* raiz;
+      // Array ponteiros para os vetores de codigos dos bytes
+      std::vector<bool> bytesCodes[BYTE];
+      // Vector de bytes para receber o arquivo compactado
+      std::vector<unsigned char> compressedFile;
+      // Array para armanezar a arvore que sera gravado no arquivo de saida
+      std::vector<unsigned char> treeArray;
 
-   // Cria a lista com os nos folha da arvore de Huffman
-   for (int i = 0; i < BYTE; i++) {
-      if (bytesArray[i] != 0) {
-         listaNos.push_back(new NodeArvore(i, bytesArray[i], nullptr, nullptr, nullptr));
+      fileLength = countByteFrequency(inputFile, bytesArray);
+
+      // Cria a lista com os nos folha da arvore de Huffman
+      for (int i = 0; i < BYTE; i++) {
+         if (bytesArray[i] != 0) {
+            listaNos.push_back(new NodeArvore(i, bytesArray[i], nullptr, nullptr, nullptr));
+         }
       }
+
+      // Constroi a arvore de Huffman
+      raiz = buildHuffmanTree(listaNos);
+
+      // Percorre a arvore e cria o codigo
+      // Passa um vector de bool nao incializado
+      std::vector<bool> code;
+      traverseTree(raiz, bytesCodes, code);
+
+      // Compacta o arquivo em um vector de bytes
+      compactFile(inputFile, fileLength, bytesCodes, compressedFile);
+
+      // Grava arvore em array
+      encodeTree(raiz, treeArray);
+      std::cout << "Size of encoded tree: " << treeArray.size() << std::endl;
+
+      // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
+      // O cabecalho eh composto por (nessa ordem):
+      // 1) 4 bytes que representam o numero de bytes do arquivo original
+      // 2) Nome do arquivo original (incluindo a extensao do arquivo)
+      // 3) 4 bytes que representam o numero de bytes do array da arvore
+      // 4) O array da arvore
+      // 5) 4 bytes que representam o numero de bytes do arquivo compactado
+      //
+      // Formato do arquivo gerado:
+      // ------------------ // --------------- // ------------------ // -------- // ------------------
+      // Numero de bytes do // Nome do arquivo // Numero de bytes do // Array da // Numero de bytes do
+      // arquivo original   // original        // array da arvore    // arvore   // arquivo compactado
+      // ------------------ // --------------- // ------------------ // -------- // ------------------
+      // ---------- //
+      // Arquivo    //
+      // compactado //
+      // ---------- //
+      outputFile = createCompressedFile(argv[2]);
+      writeCompressedFile(outputFile, fileLength, argv[2], treeArray, compressedFile);
    }
+   else if (*argv[1] == 'x') {
 
-   // Constroi a arvore de Huffman
-   raiz = buildHuffmanTree(listaNos);
-
-   // Percorre a arvore e cria o codigo
-   // Passa um vector de bool nao incializado
-   std::vector<bool> code;
-   traverseTree(raiz, bytesCodes, code);
-
-   // Compacta o arquivo em um vector de bytes
-   compactFile(inputFile, fileLength, bytesCodes, compressedFile);
-
-   // Grava arvore em array
-   encodeTree(raiz, treeArray);
-   std::cout << "Size of encoded tree: " << treeArray.size() << std::endl;
-
-   // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
-   // O cabecalho eh composto por (nessa ordem):
-   // 1) 4 bytes que representam o numero de bytes do arquivo original
-   // 2) Nome do arquivo original (incluindo a extensao do arquivo)
-   // 3) 4 bytes que representam o numero de bytes do array da arvore
-   // 4) O array da arvore
-   // 5) 4 bytes que representam o numero de bytes do arquivo compactado
-   //
-   // Formato do arquivo gerado:
-   // ------------------ // --------------- // ------------------ // -------- // ------------------
-   // Numero de bytes do // Nome do arquivo // Numero de bytes do // Array da // Numero de bytes do
-   // arquivo original   // original        // array da arvore    // arvore   // arquivo compactado
-   // ------------------ // --------------- // ------------------ // -------- // ------------------
-   // ---------- //
-   // Arquivo    //
-   // compactado //
-   // ---------- //
-   outputFile = createFile(argv[2]);
-   writeFile(outputFile, fileLength, argv[2], treeArray, compressedFile);
+   }
 
    inputFile.close();
    outputFile.close();
@@ -183,7 +193,7 @@ int main (int argc, char *argv[]) {
 std::ifstream openFile(char* filename) {
    std::ifstream file;
 
-   std::cout << "Opening input file: " << filename << std::endl;
+   std::cout << std::endl << "Opening input file: " << filename << std::endl;
    file.open(filename, std::ios::in | std::ios::binary);
 
    if(file.is_open()) {
@@ -331,7 +341,7 @@ void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray) {
    }
 }
 
-std::ofstream createFile(char* originalFilename) {
+std::ofstream createCompressedFile(char* originalFilename) {
    std::ofstream file;
    unsigned charsCounter = 0;
    char filename[BYTE];
@@ -358,7 +368,7 @@ std::ofstream createFile(char* originalFilename) {
    }
 }
 
-void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
+void writeCompressedFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
                std::vector<unsigned char>& treeArray, std::vector<unsigned char>& compressedFile) {
    // Variavel auxiliar para gravar o nome do arquivo original
    unsigned charsCounter = 0;
@@ -425,5 +435,5 @@ void writeFile(std::ofstream& file, unsigned fileLength, char* originalFilename,
    for (unsigned i = 0; i < compressedFile.size(); i++)
       file << compressedFile[i];
 
-   std::cout << "File compressed!" << std::endl;
+   std::cout << "File compressed!" << std::endl << std::endl;
 }
