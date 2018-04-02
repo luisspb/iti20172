@@ -22,8 +22,10 @@ void interpretFile(std::ifstream& file, unsigned& originalFileLength, std::strin
 // Funcao que decodifica a arvore de Huffman e a reconstroi
 NodeArvore* decodeTree(std::vector<unsigned char>& treeArray);
 
-//
-void decompressFile(...);
+// Funcao que descomprime arquivo compactado
+void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
+                    std::vector<unsigned char>& uncompressedFile,
+                    std::vector<unsigned char>& compactedFile);
 
 //
 std::ofstream createUncompressedFile(char* originalFilename);

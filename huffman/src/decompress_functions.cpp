@@ -100,3 +100,51 @@ NodeArvore* decodeTree(std::vector<unsigned char>& treeArray) {
       return new NodeArvore(-1, 0, left, right, nullptr);
    }
 }
+
+void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
+                    std::vector<unsigned char>& uncompressedFile,
+                    std::vector<unsigned char>& compactedFile) {
+   // Variaveis de 1 byte e 1 bit
+   unsigned char byte;
+   bool bit;
+   // Variavel para guardar a palavra codigo atual
+   std::vector<bool> code;
+   // Variavel que vai contando quantos bytes ja foram decodificados
+   unsigned length = 0;
+
+   for (unsigned i = 0; i < compactedFile.size(); i++) {
+      byte = compactedFile[i];
+
+      for (int j = 0; j < 8; j++) {
+         // Le bit mais significativo
+         bit = byte % 128;
+         byte = byte << 1;
+         // Vai montando uma palavra do codigo com o bit lido
+         code.push_back(bit);
+
+         for (unsigned l = 0; l < BYTE; l++) {
+            if (bytesCodes[l].size())
+               for (unsigned m = 0; m < bytesCodes[l].size(); m++) {
+                  // Se o codigo atual nao for igual ao do array de codigo dos bytes que esta sendo
+                  // comparado, tente o proximo (break)
+                  if ((m < code.size()) && (code[m] != bytesCodes[l][m]))
+                     break;
+                  // Caso o codigo seja igual, byte ja pode ser decodificado com o valor 'l'
+                  uncompressedFile.push_back(l);
+                  // Incrementa o contador de bytes decodificados
+                  length++;
+                  // Se ja decodificou o numero de bytes esperado, pode retornar da funcao de
+                  // descompressao
+                  if (length >= fileLength)
+                     return;
+                  // Caso ainda nao terminou o processo de descompressao, continue...
+                  // ...variavel com o codigo atual eh limpa
+                  code.resize(0);
+               }
+            // Se o codigo igual ao de algum byte, pode parar a procura atual
+            if (!code.size())
+               break;
+         }  // for (unsigned l = 0...
+      }  // for (int j = 0...
+   }  // for (unsigned i = 0...
+}

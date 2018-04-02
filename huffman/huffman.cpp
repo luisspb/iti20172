@@ -152,6 +152,8 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
    NodeArvore* raiz;
    // Array ponteiros para os vetores de codigos dos bytes
    std::vector<bool> bytesCodes[BYTE];
+   // Vector de bytes para receber o arquivo descompactado
+   std::vector<unsigned char> uncompressedFile;
 
    interpretFile(inputFile, originalFileLength, originalFilename, treeArraySize, treeArray,
                  compactedFileSize, compactedFile);
@@ -163,12 +165,9 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
 
-   for (unsigned i = 0; i < BYTE; i++) {
-      if (bytesCodes[i].size()) {
-         std::cout << "Byte: " << i << ", Code: ";
-         for (unsigned j = 0; j < bytesCodes[i].size(); j++)
-            std::cout << bytesCodes[i][j];
-         std::cout << std::endl;
-      }
-   }
+   decompressFile(originalFileLength, bytesCodes, uncompressedFile, compactedFile);
+
+   for (unsigned i = 0; i < uncompressedFile.size(); i++)
+      std::cout << (unsigned) uncompressedFile[i];
+   std::cout << std::endl;
 }
