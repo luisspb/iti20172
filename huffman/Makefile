@@ -6,7 +6,7 @@ CPPFLAGS= -std=gnu++11 -pedantic -O2 -Wall
 VPATH = ./src
 LIBS= -lm
 MAIN = huffman
-SOURCES = NodeArvore.cpp common_functions.cpp compress_functions.cpp decompress_functions.cpp
+SOURCES = ./src/NodeArvore.cpp ./src/common_functions.cpp ./src/compress_functions.cpp ./src/decompress_functions.cpp
 
 $(MAIN): $(SOURCES) $(MAIN).cpp
 	g++ $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $@ $^
@@ -16,7 +16,7 @@ clean:
 
 debug:
 	$(MAKE) clean
-	g++ -Og -ggdb $(CPPFLAGS) $(LIBS) -o $(MAIN) $(SOURCES) $(MAIN).cpp
+	g++ -Og -ggdb $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $(MAIN) $(SOURCES) $(MAIN).cpp
 
 remade:
 	$(MAKE) clean
