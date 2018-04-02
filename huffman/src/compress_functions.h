@@ -11,6 +11,7 @@
 #include <cstring>
 
 #include "NodeArvore.h"
+#include "common_functions.h"
 
 // Prototipos das funcoes para Compressao
 
@@ -18,12 +19,13 @@
 // e o array em que armazenara as frequencias, ela retorna o tamanho do arquivo em bytes
 unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray);
 
-// A funcao que controi a arvore de Huffman recebe a lista de Nos e devolve o ponteiro para a raiz
-NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos);
+// A funcao que controi a arvore de Huffman recebe uma copia da lista de Nos e devolve o ponteiro
+// para a raiz
+NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos);
 
 // A funcao que comprime o arquivo em um vector de bytes
 void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
-                 std::vector<unsigned char>& compactedFile);
+                  std::vector<unsigned char>& compactedFile, std::vector<NodeArvore*>& listaNos);
 
 // Funcao que grava a arvore em um array (para posterior gravacao em arquivo)
 void encodeTree(NodeArvore* raiz, std::vector<unsigned char>& treeArray);

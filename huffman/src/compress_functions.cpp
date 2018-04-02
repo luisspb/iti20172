@@ -26,7 +26,10 @@ unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray) {
    return length;
 }
 
-NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
+// A funcao de construcao da arvore tem que receber uma copia da lista de Nos, nao pode ser passagem
+// por referencia, dado que a lista original tem que ser mantida para ir se atualizando a frequencia
+// dos bytes e reconstruindo a arvore a medida que a codificacao vai sendo feita
+NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos) {
    NodeArvore* one;
    NodeArvore* two;
    NodeArvore* internalNode = nullptr;
@@ -51,47 +54,80 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*>& listaNos) {
 }
 
 void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
-                 std::vector<unsigned char>& compactedFile) {
+                  std::vector<unsigned char>& compactedFile, std::vector<NodeArvore*>& listaNos) {
    // A leitura do arquivo se da byte por byte, cada byte eh primeiro armazenado no buffer
    char buffer;
    // O buffer eh depois convertido num byte sem sinal
    unsigned char inputByte;
    // Contador para contar os bits ateh completar um byte
-   unsigned char byteCounter = 0;
+   unsigned char bitsCounter = 0;
    // Byte que eh montado para depois ser colocado no arquivo compactado
    unsigned char outputByte = 0;
+   // Ponteiro para a raiz da arvore que sera reconstruida
+   NodeArvore* raiz;
 
    // Volta para o inicio do arquivo de entrada
    file.seekg(0, std::ios::beg);
 
-   for (unsigned i = 0; i < fileLength; i++) {
+   // Le do primeiro ao penultimo byte do arquivo, porque o ultimo nao precisa ser codificado, ele
+   // eh inferido no processo de descompressao.
+   for (unsigned i = 0; i < fileLength - 1; i++) {
       file.read(&buffer, 1);
       inputByte = static_cast<unsigned char>(buffer);
 
+      // Dado o byte a ser compactado, encontra-se ele no array de codigos e percorre-se os bits do
+      // codigo
       for (unsigned j = 0; j < bytesCodes[inputByte].size(); j++) {
+         // Se o bit do codigo eh 1, coloca o bit 1 no byte compactado
          if (bytesCodes[inputByte][j])
             outputByte++;
-         byteCounter++;
-         if (byteCounter >= 8) {
+         // E incrementa-se o contador de bits
+         bitsCounter++;
+         // A qualquer momento, quando os bits compactados completarem 1 byte, ele eh gravado no
+         // array de bytes do arquivo compactado
+         if (bitsCounter >= 8) {
             compactedFile.push_back(outputByte);
-            byteCounter = 0;
+            bitsCounter = 0;
             outputByte = 0;
          }
          else
+            // Depois de lido o bit do codigo e caso nao tenha sido completado 1 byte, desloca-se a
+            // sequencia de bits para a direita para receber o proximo bit
             outputByte = outputByte << 1;
       }  // for (unsigned j = 0...
+
+      // Depois de codificado o byte, a sua frequencia eh decrementada na lista de nos
+      for (unsigned j = 0; j < listaNos.size(); j++)
+         // Procura byte na lista de nos
+         if (listaNos[j]->getByte() == inputByte) {
+            listaNos[j]->decrementaFrequencia();
+            // Encontrado o byte na lista de nos, sua frequencia eh decrementada e o loop pode ser
+            // interrompido
+            break;
+         }
+      // Frequencia decrementada, agora a arvore deve ser reconstruida
+      raiz = buildHuffmanTree(listaNos);
+
+      // O codigo anterior tem que ser apagado
+      for (unsigned j = 0; j < BYTE; j++)
+         bytesCodes[j].resize(0);
+
+      // E em seguida percorre a nova arvore e recria o codigo
+      // Passa um vector de bool nao incializado
+      std::vector<bool> code;
+      traverseTree(raiz, bytesCodes, code);
    }  // for (unsigned i = 0...
 
    // Se o ultimo byte precisar ser completado, o codigo a seguir o completa com zeros.
    // Note que o byte incompleto ja sai do loop dos for com um zero a mais no final, por isso agora
    // a comparacao eh com 7 e nao mais com 8
-   while ((byteCounter > 0) && (byteCounter < 7)) {
-      byteCounter++;
+   while ((bitsCounter > 0) && (bitsCounter < 7)) {
+      bitsCounter++;
       outputByte = outputByte << 1;
    }
    // Se o que restou dos for aninhados foi um byte incompleto, agora ele esta completado com zeros
    // e sera acrescentado no array do arquivo compactado
-   if (byteCounter >= 7)
+   if (bitsCounter >= 7)
       compactedFile.push_back(outputByte);
 
    std::cout << "Size of compressed bytes: " << compactedFile.size() << std::endl;

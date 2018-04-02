@@ -107,12 +107,17 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
 
-   // Compacta o arquivo em um vector de bytes
-   compressFile(inputFile, fileLength, bytesCodes, compactedFile);
-
    // Grava arvore em array
+   // Como a compressao vai reconstruindo a arvore, a original precisa ser codificada antes de
+   // comecar o processo que a altera
    encodeTree(raiz, treeArray);
    std::cout << "Size of encoded tree: " << treeArray.size() << std::endl;
+
+   // Compacta o arquivo em um vector de bytes
+   // Para o codigo de Huffman semi-adaptativo de decremento, a funcao que faz a compressao vai
+   // decrementando a frequencia dos bytes codificados e reconstruindo a arvore. Por isso precisa-se
+   // agora passar como argumento tambem a lista de nos
+   compressFile(inputFile, fileLength, bytesCodes, compactedFile, listaNos);
 
    // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
    // O cabecalho eh composto por (nessa ordem):

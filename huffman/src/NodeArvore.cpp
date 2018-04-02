@@ -36,3 +36,7 @@ void NodeArvore::setPai(NodeArvore* pai) {
 bool NodeArvore::compare(NodeArvore* one, NodeArvore* two) {
    return one->frequencia > two->frequencia;
 }
+
+void NodeArvore::decrementaFrequencia() {
+   this->frequencia = this->frequencia - 1;
+}

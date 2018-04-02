@@ -23,6 +23,7 @@ public:
    void setPai(NodeArvore* pai);
    // Metodo de classe, nao precisa de instancia
    static bool compare(NodeArvore* one, NodeArvore* two);
+   void decrementaFrequencia();
 };
 
 #endif
