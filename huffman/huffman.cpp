@@ -167,7 +167,7 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
 
    decompressFile(originalFileLength, bytesCodes, uncompressedFile, compactedFile);
 
-   for (unsigned i = 0; i < uncompressedFile.size(); i++)
-      std::cout << (unsigned) uncompressedFile[i];
-   std::cout << std::endl;
+   outputFile = createUncompressedFile(originalFilename.c_str());
+
+   writeUncompressedFile(outputFile, uncompressedFile);
 }

@@ -156,3 +156,23 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
       }  // for (int j = 0...
    }  // for (unsigned i = 0...
 }
+
+std::ofstream createUncompressedFile(const char* originalFilename) {
+   std::ofstream file;
+
+   std::cout << "Opening output file: " << originalFilename << std::endl;
+   file.open(originalFilename, std::ios::out | std::ios::binary);
+
+   if(file.is_open()) {
+      return file;
+   }
+   else {
+      std::cerr << "Error opening output file: " << originalFilename << std::endl;
+      exit(1);
+   }
+}
+
+void writeUncompressedFile(std::ofstream& outputFile, std::vector<unsigned char>& uncompressedFile) {
+   for (unsigned i = 0; i < uncompressedFile.size(); i++)
+      outputFile << uncompressedFile[i];
+}

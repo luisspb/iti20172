@@ -129,7 +129,7 @@ std::ofstream createCompressedFile(char* originalFilename) {
    unsigned charsCounter = 0;
    char filename[BYTE];
 
-  strcpy(filename, originalFilename);
+   strcpy(filename, originalFilename);
 
    while (filename[charsCounter] != '\0')
       charsCounter++;

@@ -27,10 +27,10 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                     std::vector<unsigned char>& uncompressedFile,
                     std::vector<unsigned char>& compactedFile);
 
-//
-std::ofstream createUncompressedFile(char* originalFilename);
+// Funcao que abre arquivo de saida do descompressor
+std::ofstream createUncompressedFile(const char* originalFilename);
 
-//
-void writeUncompressedFile(...);
+// Funcao que grava conteudo descompactado no arquivo de saida
+void writeUncompressedFile(std::ofstream& outputFile, std::vector<unsigned char>& uncompressedFile);
 
 #endif
