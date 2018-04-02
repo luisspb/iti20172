@@ -109,6 +109,8 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
    bool bit;
    // Variavel para guardar a palavra codigo atual
    std::vector<bool> code;
+   // Variavel que diz se foi encontrado uma palavra de codigo dentro do array de codigos
+   bool match;
    // Variavel que vai contando quantos bytes ja foram decodificados
    unsigned length = 0;
 
@@ -117,18 +119,23 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
 
       for (int j = 0; j < 8; j++) {
          // Le bit mais significativo
-         bit = byte % 128;
+         bit = byte / 128;
          byte = byte << 1;
          // Vai montando uma palavra do codigo com o bit lido
          code.push_back(bit);
 
          for (unsigned l = 0; l < BYTE; l++) {
-            if (bytesCodes[l].size())
-               for (unsigned m = 0; m < bytesCodes[l].size(); m++) {
+            if (bytesCodes[l].size()) {
+               // Se match permanecer true, palavra codigo foi encontrada
+               match = true;
+               for (unsigned m = 0; m < bytesCodes[l].size(); m++)
                   // Se o codigo atual nao for igual ao do array de codigo dos bytes que esta sendo
-                  // comparado, tente o proximo (break)
-                  if ((m < code.size()) && (code[m] != bytesCodes[l][m]))
+                  // comparado, tente o proximo (match false e break)
+                  if ((m >= code.size()) || (code[m] != bytesCodes[l][m])) {
+                     match = false;
                      break;
+                  }
+               if (match) {
                   // Caso o codigo seja igual, byte ja pode ser decodificado com o valor 'l'
                   uncompressedFile.push_back(l);
                   // Incrementa o contador de bytes decodificados
@@ -140,7 +147,8 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                   // Caso ainda nao terminou o processo de descompressao, continue...
                   // ...variavel com o codigo atual eh limpa
                   code.resize(0);
-               }
+               }  // if (match)
+            }  // if (bytesCodes[l].size())
             // Se o codigo igual ao de algum byte, pode parar a procura atual
             if (!code.size())
                break;
