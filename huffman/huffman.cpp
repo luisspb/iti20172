@@ -107,6 +107,17 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
 
+   // DEBUG
+   for (unsigned i = 0; i < BYTE; i++) {
+      if (bytesCodes[i].size()) {
+         std::cout << "Byte: " << i << ", Codigo: ";
+         for (unsigned j = 0; j < bytesCodes[i].size(); j++)
+            std::cout << bytesCodes[i][j];
+         std::cout << std::endl;
+      }
+   }
+   // DEBUG
+
    // Grava arvore em array
    // Como a compressao vai reconstruindo a arvore, a original precisa ser codificada antes de
    // comecar o processo que a altera

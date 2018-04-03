@@ -4,6 +4,7 @@
 #ifndef COMMON_FUNCTIONS__
 #define COMMON_FUNCTIONS__
 
+#include <iostream>
 #include <vector>
 #include <algorithm>
 

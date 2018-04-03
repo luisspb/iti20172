@@ -30,6 +30,9 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos) {
    NodeArvore* two;
    NodeArvore* internalNode = nullptr;
 
+   if (listaNos.size() == 1)
+      return listaNos[0];
+
    while (listaNos.size() > 1) {
       std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compare);
 
@@ -52,22 +55,49 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos) {
 void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArvore* raiz,
                  std::vector<bool> bytesCodes[]) {
    // Procura byte na lista de nos
-   for (unsigned j = 0; j < listaNos.size(); j++)
-      if (listaNos[j]->getByte() == byte) {
-         listaNos[j]->decrementaFrequencia();
-         // Encontrado o byte na lista de nos, sua frequencia eh decrementada e o loop pode ser
-         // interrompido
+   for (unsigned i = 0; i < listaNos.size(); i++)
+      if (listaNos[i]->getByte() == byte) {
+         // Encontrado o byte na lista de nos, sua frequencia eh decrementada
+         listaNos[i]->decrementaFrequencia();
+         // Eh preciso verificar se a frequencia do byte chegou a zero, se sim, o No desse byte deve
+         // ser excluido da lista
+         if (!listaNos[i]->getFrequencia()) {
+            for (unsigned j = i; j < (listaNos.size() - 1); j++)
+               // Vai movendo o No com o byte de frequencia nula ate este chegar na ultima posicao da
+               // lista
+               std::iter_swap(listaNos[j], listaNos[j+1]);
+            // Estando o No com o byte de frequencia nula na ultima posicao do vector, basta retira-lo
+            listaNos.pop_back();
+         }
+         // Agora que o byte foi decrementado, o loop pode ser interrompido
          break;
       }
+   // DEBUG
+   std::cout << "-- Nova Lista --" << std::endl;
+   for (unsigned i = 0; i < listaNos.size(); i++)
+      std::cout << "Byte: " << listaNos[i]->getByte() << ", Frequencia: "
+                << listaNos[i]->getFrequencia() << std::endl;
+   // DEBUG
    // Frequencia decrementada, agora a arvore deve ser reconstruida
    raiz = buildHuffmanTree(listaNos);
 
    // O codigo anterior tem que ser apagado
-   for (unsigned j = 0; j < BYTE; j++)
-      bytesCodes[j].resize(0);
+   for (unsigned i = 0; i < BYTE; i++)
+      bytesCodes[i].resize(0);
 
    // E em seguida percorre a nova arvore e recria o codigo
    // Passa um vector de bool nao incializado
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
+   // DEBUG
+   std::cout << "-- Novo Codigo --" << std::endl;
+   for (unsigned i = 0; i < BYTE; i++) {
+      if (bytesCodes[i].size()) {
+         std::cout << "Byte: " << i << ", Codigo: ";
+         for (unsigned j = 0; j < bytesCodes[i].size(); j++)
+            std::cout << bytesCodes[i][j];
+         std::cout << std::endl;
+      }
+   }
+   // DEBUG
 }
