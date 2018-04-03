@@ -77,7 +77,7 @@ void interpretFile(std::ifstream& file, unsigned& originalFileLength, std::strin
 }
 
 //https://stackoverflow.com/questions/759707/efficient-way-of-storing-huffman-tree
-NodeArvore* decodeTree(std::vector<unsigned char>& treeArray) {
+NodeArvore* decodeTree(std::vector<unsigned char>& treeArray, std::vector<NodeArvore*>& listaNos) {
    int byte;
    unsigned frequency = 0;
    NodeArvore* left;
@@ -91,19 +91,22 @@ NodeArvore* decodeTree(std::vector<unsigned char>& treeArray) {
          frequency += pow(BYTE, i) * treeArray.back();
          treeArray.pop_back();
       }
-      return new NodeArvore(byte, frequency, nullptr, nullptr, nullptr);
+      // Salva o No folha na lista de Nos
+      listaNos.push_back(new NodeArvore(byte, frequency, nullptr, nullptr, nullptr));
+      // E o retorna
+      return listaNos.back();
    }
    else {
       treeArray.pop_back();
-      left = decodeTree(treeArray);
-      right = decodeTree(treeArray);
+      left = decodeTree(treeArray, listaNos);
+      right = decodeTree(treeArray, listaNos);
       return new NodeArvore(-1, 0, left, right, nullptr);
    }
 }
 
 void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                     std::vector<unsigned char>& uncompressedFile,
-                    std::vector<unsigned char>& compactedFile) {
+                    std::vector<unsigned char>& compactedFile, std::vector<NodeArvore*>& listaNos) {
    // Variaveis de 1 byte e 1 bit
    unsigned char byte;
    bool bit;
@@ -113,6 +116,8 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
    bool match;
    // Variavel que vai contando quantos bytes ja foram decodificados
    unsigned length = 0;
+   // Ponteiro para a raiz da arvore que sera reconstruida
+   NodeArvore* raiz = nullptr;
 
    for (unsigned i = 0; i < compactedFile.size(); i++) {
       byte = compactedFile[i];
@@ -140,13 +145,25 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                   uncompressedFile.push_back(l);
                   // Incrementa o contador de bytes decodificados
                   length++;
-                  // Se ja decodificou o numero de bytes esperado, pode retornar da funcao de
-                  // descompressao
-                  if (length >= fileLength)
+                  // Se ja decodificou ate o penultimo byte, nao ha necessidade de decodificar o
+                  // ultimo, ele eh o unico que restou na lista de Nos
+                  if (length >= (fileLength - 1)) {
+                     // Decodifica ultimo byte, procura pelo que restou com frequencia '1' na lista
+                     // de Nos
+                     for (unsigned m = 0; m < listaNos.size(); m++)
+                        if (listaNos[m]->getFrequencia())
+                           uncompressedFile.push_back(listaNos[m]->getByte());
+                     // Descompressao terminada, pode retornar da funcao de descompressao
                      return;
-                  // Caso ainda nao terminou o processo de descompressao, continue...
-                  // ...variavel com o codigo atual eh limpa
-                  code.resize(0);
+                  }
+                  else {
+                     // Caso ainda nao terminou o processo de descompressao, continue...
+                     // ...variavel com o codigo atual eh limpa
+                     code.resize(0);
+                     // Frequencia do byte decodificado deve ser decrementada no No correspondente
+                     // da lista de Nos, a arvore deve ser reconstruida e o codigo atualizado
+                     updateTree (l, listaNos, raiz, bytesCodes);
+                  }
                }  // if (match)
             }  // if (bytesCodes[l].size())
             // Se o codigo igual ao de algum byte, pode parar a procura atual

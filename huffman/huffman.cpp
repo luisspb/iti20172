@@ -159,18 +159,20 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
    std::vector<bool> bytesCodes[BYTE];
    // Vector de bytes para receber o arquivo descompactado
    std::vector<unsigned char> uncompressedFile;
+   // Vetor para armanezar os nos folha que serao recuperados da arvore de Huffman
+   std::vector<NodeArvore*> listaNos;
 
    interpretFile(inputFile, originalFileLength, originalFilename, treeArraySize, treeArray,
                  compactedFileSize, compactedFile);
 
-   raiz = decodeTree(treeArray);
+   raiz = decodeTree(treeArray, listaNos);
 
    // Percorre a arvore e recria o codigo
    // Passa um vector de bool nao incializado
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
 
-   decompressFile(originalFileLength, bytesCodes, uncompressedFile, compactedFile);
+   decompressFile(originalFileLength, bytesCodes, uncompressedFile, compactedFile, listaNos);
 
    outputFile = createUncompressedFile(originalFilename.c_str());
 

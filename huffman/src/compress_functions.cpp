@@ -37,7 +37,7 @@ void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> by
    // Byte que eh montado para depois ser colocado no arquivo compactado
    unsigned char outputByte = 0;
    // Ponteiro para a raiz da arvore que sera reconstruida
-   NodeArvore* raiz;
+   NodeArvore* raiz = nullptr;
 
    // Volta para o inicio do arquivo de entrada
    file.seekg(0, std::ios::beg);
@@ -69,26 +69,9 @@ void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> by
             outputByte = outputByte << 1;
       }  // for (unsigned j = 0...
 
-      // Depois de codificado o byte, a sua frequencia eh decrementada na lista de nos
-      for (unsigned j = 0; j < listaNos.size(); j++)
-         // Procura byte na lista de nos
-         if (listaNos[j]->getByte() == inputByte) {
-            listaNos[j]->decrementaFrequencia();
-            // Encontrado o byte na lista de nos, sua frequencia eh decrementada e o loop pode ser
-            // interrompido
-            break;
-         }
-      // Frequencia decrementada, agora a arvore deve ser reconstruida
-      raiz = buildHuffmanTree(listaNos);
-
-      // O codigo anterior tem que ser apagado
-      for (unsigned j = 0; j < BYTE; j++)
-         bytesCodes[j].resize(0);
-
-      // E em seguida percorre a nova arvore e recria o codigo
-      // Passa um vector de bool nao incializado
-      std::vector<bool> code;
-      traverseTree(raiz, bytesCodes, code);
+      // Depois de codificado o byte, a sua frequencia deve ser decrementada na lista de nos, a
+      // arvore deve ser reconstruida e o novo codigo gerado
+      updateTree (inputByte, listaNos, raiz, bytesCodes);
    }  // for (unsigned i = 0...
 
    // Se o ultimo byte precisar ser completado, o codigo a seguir o completa com zeros.
