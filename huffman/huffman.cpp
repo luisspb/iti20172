@@ -113,6 +113,9 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    int idx = -1;
    raiz = buildHuffmanTree(listaNos, idx);
 
+   #ifdef DEBUG
+      std::cout << "-- Primeira Arvore --" << std::endl;
+   #endif
    // Percorre a arvore e cria o codigo
    // Passa um vector de bool nao incializado
    std::vector<bool> code;
@@ -203,8 +206,9 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
    for (unsigned i = 0; i < listaNos.size(); i++)
       std::cout << "Byte: " << listaNos[i]->getByte() << ", Frequencia: "
                 << listaNos[i]->getFrequencia() << std::endl;
-#endif
 
+   std::cout << "-- Nova Arvore --" << std::endl;
+#endif
    // Percorre a arvore e recria o codigo
    // Passa um vector de bool nao incializado
    std::vector<bool> code;

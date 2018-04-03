@@ -5,6 +5,12 @@
 
 // Funcoes usadas na Compressao e Descompressao
 void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<bool> code) {
+
+#ifdef DEBUG
+   //Imprime o identificador (byte) dos Nos a medida que percorre a arvore (preorder)
+   std::cout << "Node: " << raiz->getByte() << std::endl;
+#endif
+
    std::vector<bool> left, right;
    // Quando vai pro no esquerdo, acrescenta um '0' ao codigo
    left = code;
@@ -99,6 +105,9 @@ void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArv
    for (unsigned i = 0; i < BYTE; i++)
       bytesCodes[i].resize(0);
 
+#ifdef DEBUG
+   std::cout << "-- Nova Arvore --" << std::endl;
+#endif
    // E em seguida percorre a nova arvore e recria o codigo
    // Passa um vector de bool nao incializado
    std::vector<bool> code;
