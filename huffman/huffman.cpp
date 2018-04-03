@@ -100,8 +100,18 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
       }
    }
 
+#ifdef DEBUG
+   std::cout << "-- Primeira Lista --" << std::endl;
+   for (unsigned i = 0; i < listaNos.size(); i++)
+      std::cout << "Byte: " << listaNos[i]->getByte() << ", Frequencia: "
+                << listaNos[i]->getFrequencia() << std::endl;
+#endif
+
    // Constroi a arvore de Huffman
-   raiz = buildHuffmanTree(listaNos);
+   // Chama a funcao com um valor de idx que sera usado como identificador unico de cada
+   // InternalNode. O valor de idx passado sera o valor do primeiro InternalNode criado
+   int idx = -1;
+   raiz = buildHuffmanTree(listaNos, idx);
 
    // Percorre a arvore e cria o codigo
    // Passa um vector de bool nao incializado
@@ -109,6 +119,7 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    traverseTree(raiz, bytesCodes, code);
 
 #ifdef DEBUG
+   std::cout << "-- Primeiro Codigo --" << std::endl;
    for (unsigned i = 0; i < BYTE; i++) {
       if (bytesCodes[i].size()) {
          std::cout << "Byte: " << i << ", Codigo: ";
@@ -187,12 +198,20 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
 
    raiz = decodeTree(treeArray, listaNos);
 
+#ifdef DEBUG
+   std::cout << "-- Primeira Lista --" << std::endl;
+   for (unsigned i = 0; i < listaNos.size(); i++)
+      std::cout << "Byte: " << listaNos[i]->getByte() << ", Frequencia: "
+                << listaNos[i]->getFrequencia() << std::endl;
+#endif
+
    // Percorre a arvore e recria o codigo
    // Passa um vector de bool nao incializado
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
 
 #ifdef DEBUG
+   std::cout << "-- Primeiro Codigo --" << std::endl;
    for (unsigned i = 0; i < BYTE; i++) {
       if (bytesCodes[i].size()) {
          std::cout << "Byte: " << i << ", Codigo: ";

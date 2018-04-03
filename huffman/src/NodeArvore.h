@@ -21,8 +21,9 @@ public:
    NodeArvore* getEsquerda();
    NodeArvore* getDireita();
    void setPai(NodeArvore* pai);
-   // Metodo de classe, nao precisa de instancia
-   static bool compare(NodeArvore* one, NodeArvore* two);
+   // Metodos de classe, nao precisam de instancia
+   static bool compareFrequencia(NodeArvore* one, NodeArvore* two);
+   static bool compareByte(NodeArvore* one, NodeArvore* two);
    void decrementaFrequencia();
 };
 

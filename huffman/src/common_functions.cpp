@@ -25,7 +25,7 @@ void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<
 // A funcao de construcao da arvore tem que receber uma copia da lista de Nos, nao pode ser passagem
 // por referencia, dado que a lista original tem que ser mantida para ir se atualizando a frequencia
 // dos bytes e reconstruindo a arvore a medida que a codificacao vai sendo feita
-NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos) {
+NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos, int idx) {
    NodeArvore* one;
    NodeArvore* two;
    NodeArvore* internalNode = nullptr;
@@ -34,7 +34,12 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos) {
       return listaNos[0];
 
    while (listaNos.size() > 1) {
-      std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compare);
+      // Primeiro ordena a lista de Nos pelos valores dos bytes, para garantir que na ordenacao por
+      // frequencia, em caso de empate, os Nos fiquem ordenados sempre da mesma forma, seja na
+      // compressao ou descompressao
+      std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compareByte);
+      // Ordenacao dos Nos pelas frequencias
+      std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compareFrequencia);
 
       one = listaNos[listaNos.size()-1];
       listaNos.pop_back();
@@ -42,8 +47,12 @@ NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos) {
       listaNos.pop_back();
       // O valor da variavel membro byte do internalNode eh sempre -1 porque ele nao representa um
       // byte apenas
-      internalNode = new NodeArvore(-1, one->getFrequencia() + two->getFrequencia(), one, two,
+      internalNode = new NodeArvore(idx, one->getFrequencia() + two->getFrequencia(), one, two,
                                     nullptr);
+      // Decrementa a variavel idx para que cada internalNode possua um valor de "byte" diferente,
+      // funciona como um identificador unico para o sorting
+      idx--;
+
       one->setPai(internalNode);
       two->setPai(internalNode);
       listaNos.push_back(internalNode);
@@ -81,7 +90,10 @@ void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArv
 #endif
 
    // Frequencia decrementada, agora a arvore deve ser reconstruida
-   raiz = buildHuffmanTree(listaNos);
+   // Chama a funcao com um valor de idx que sera usado como identificador unico de cada
+   // InternalNode. O valor de idx passado sera o valor do primeiro InternalNode criado
+   int idx = -1;
+   raiz = buildHuffmanTree(listaNos, idx);
 
    // O codigo anterior tem que ser apagado
    for (unsigned i = 0; i < BYTE; i++)

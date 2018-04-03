@@ -14,7 +14,7 @@
 
 // A funcao que controi a arvore de Huffman recebe uma copia da lista de Nos e devolve o ponteiro
 // para a raiz
-NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos);
+NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos, int idx);
 
 // Funcao que percorrem a arvore e cria o codigo, um array com as posicoes sendo os bytes e os
 // valores do array sendo os codigos
