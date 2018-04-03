@@ -11,6 +11,7 @@
 #include <string>
 
 #include "NodeArvore.h"
+#include "common_functions.h"
 
 // Prototipos das funcoes para Descompressao
 

@@ -26,33 +26,6 @@ unsigned countByteFrequency(std::ifstream& file, unsigned* bytesArray) {
    return length;
 }
 
-// A funcao de construcao da arvore tem que receber uma copia da lista de Nos, nao pode ser passagem
-// por referencia, dado que a lista original tem que ser mantida para ir se atualizando a frequencia
-// dos bytes e reconstruindo a arvore a medida que a codificacao vai sendo feita
-NodeArvore* buildHuffmanTree(std::vector<NodeArvore*> listaNos) {
-   NodeArvore* one;
-   NodeArvore* two;
-   NodeArvore* internalNode = nullptr;
-
-   while (listaNos.size() > 1) {
-      std::sort(listaNos.begin(), listaNos.end(), NodeArvore::compare);
-
-      one = listaNos[listaNos.size()-1];
-      listaNos.pop_back();
-      two = listaNos[listaNos.size()-1];
-      listaNos.pop_back();
-      // O valor da variavel membro byte do internalNode eh sempre -1 porque ele nao representa um
-      // byte apenas
-      internalNode = new NodeArvore(-1, one->getFrequencia() + two->getFrequencia(), one, two,
-                                    nullptr);
-      one->setPai(internalNode);
-      two->setPai(internalNode);
-      listaNos.push_back(internalNode);
-   }
-
-   return internalNode;
-}
-
 void compressFile(std::ifstream& file, unsigned fileLength, std::vector<bool> bytesCodes[],
                   std::vector<unsigned char>& compactedFile, std::vector<NodeArvore*>& listaNos) {
    // A leitura do arquivo se da byte por byte, cada byte eh primeiro armazenado no buffer
