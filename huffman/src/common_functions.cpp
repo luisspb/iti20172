@@ -72,12 +72,14 @@ void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArv
          // Agora que o byte foi decrementado, o loop pode ser interrompido
          break;
       }
-   // DEBUG
+
+#ifdef DEBUG
    std::cout << "-- Nova Lista --" << std::endl;
    for (unsigned i = 0; i < listaNos.size(); i++)
       std::cout << "Byte: " << listaNos[i]->getByte() << ", Frequencia: "
                 << listaNos[i]->getFrequencia() << std::endl;
-   // DEBUG
+#endif
+
    // Frequencia decrementada, agora a arvore deve ser reconstruida
    raiz = buildHuffmanTree(listaNos);
 
@@ -89,7 +91,8 @@ void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArv
    // Passa um vector de bool nao incializado
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
-   // DEBUG
+
+#ifdef DEBUG
    std::cout << "-- Novo Codigo --" << std::endl;
    for (unsigned i = 0; i < BYTE; i++) {
       if (bytesCodes[i].size()) {
@@ -99,5 +102,5 @@ void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArv
          std::cout << std::endl;
       }
    }
-   // DEBUG
+#endif
 }

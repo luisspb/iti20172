@@ -16,7 +16,7 @@ clean:
 
 debug:
 	$(MAKE) clean
-	g++ -Og -ggdb $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $(MAIN) $(SOURCES) $(MAIN).cpp
+	g++ -Og -ggdb -DDEBUG $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $(MAIN) $(SOURCES) $(MAIN).cpp
 
 remade:
 	$(MAKE) clean

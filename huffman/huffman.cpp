@@ -23,6 +23,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <bitset>
 
 #include "NodeArvore.h"
 #include "common_functions.h"
@@ -107,7 +108,7 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
 
-   // DEBUG
+#ifdef DEBUG
    for (unsigned i = 0; i < BYTE; i++) {
       if (bytesCodes[i].size()) {
          std::cout << "Byte: " << i << ", Codigo: ";
@@ -116,7 +117,7 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
          std::cout << std::endl;
       }
    }
-   // DEBUG
+#endif
 
    // Grava arvore em array
    // Como a compressao vai reconstruindo a arvore, a original precisa ser codificada antes de
@@ -129,6 +130,14 @@ void compress(char* originalFilename, std::ifstream& inputFile, std::ofstream& o
    // decrementando a frequencia dos bytes codificados e reconstruindo a arvore. Por isso precisa-se
    // agora passar como argumento tambem a lista de nos
    compressFile(inputFile, fileLength, bytesCodes, compactedFile, listaNos);
+
+#ifdef DEBUG
+   std::cout << "-- Bytes compactados -- " << std::endl;
+   for (unsigned i = 0; i < compactedFile.size(); i++) {
+      std::bitset<8> bits(compactedFile[i]);
+      std::cout << bits << std::endl;
+   }
+#endif
 
    // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
    // O cabecalho eh composto por (nessa ordem):
@@ -182,6 +191,17 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
    // Passa um vector de bool nao incializado
    std::vector<bool> code;
    traverseTree(raiz, bytesCodes, code);
+
+#ifdef DEBUG
+   for (unsigned i = 0; i < BYTE; i++) {
+      if (bytesCodes[i].size()) {
+         std::cout << "Byte: " << i << ", Codigo: ";
+         for (unsigned j = 0; j < bytesCodes[i].size(); j++)
+            std::cout << bytesCodes[i][j];
+         std::cout << std::endl;
+      }
+   }
+#endif
 
    decompressFile(originalFileLength, bytesCodes, uncompressedFile, compactedFile, listaNos);
 

@@ -145,6 +145,9 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                   uncompressedFile.push_back(l);
                   // Incrementa o contador de bytes decodificados
                   length++;
+                  // Frequencia do byte decodificado deve ser decrementada no No correspondente
+                  // da lista de Nos, a arvore deve ser reconstruida e o codigo atualizado
+                  updateTree (l, listaNos, raiz, bytesCodes);
                   // Se ja decodificou ate o penultimo byte, nao ha necessidade de decodificar o
                   // ultimo, ele eh o unico que restou na lista de Nos
                   if (length >= (fileLength - 1)) {
@@ -156,14 +159,9 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                      // Descompressao terminada, pode retornar da funcao de descompressao
                      return;
                   }
-                  else {
-                     // Caso ainda nao terminou o processo de descompressao, continue...
-                     // ...variavel com o codigo atual eh limpa
-                     code.resize(0);
-                     // Frequencia do byte decodificado deve ser decrementada no No correspondente
-                     // da lista de Nos, a arvore deve ser reconstruida e o codigo atualizado
-                     updateTree (l, listaNos, raiz, bytesCodes);
-                  }
+                  // Caso ainda nao terminou o processo de descompressao, continue...
+                  // ...variavel com o codigo atual eh limpa
+                  code.resize(0);
                }  // if (match)
             }  // if (bytesCodes[l].size())
             // Se o codigo igual ao de algum byte, pode parar a procura atual
