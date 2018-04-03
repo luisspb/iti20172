@@ -199,7 +199,10 @@ void decompress(std::ifstream& inputFile, std::ofstream& outputFile) {
    interpretFile(inputFile, originalFileLength, originalFilename, treeArraySize, treeArray,
                  compactedFileSize, compactedFile);
 
-   raiz = decodeTree(treeArray, listaNos);
+   // Chama a funcao com um valor de idx que sera usado como identificador unico de cada
+   // InternalNode
+   int idx = 0;
+   raiz = decodeTree(treeArray, listaNos, idx);
 
 #ifdef DEBUG
    std::cout << "-- Primeira Lista --" << std::endl;

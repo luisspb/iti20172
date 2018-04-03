@@ -77,7 +77,8 @@ void interpretFile(std::ifstream& file, unsigned& originalFileLength, std::strin
 }
 
 //https://stackoverflow.com/questions/759707/efficient-way-of-storing-huffman-tree
-NodeArvore* decodeTree(std::vector<unsigned char>& treeArray, std::vector<NodeArvore*>& listaNos) {
+NodeArvore* decodeTree(std::vector<unsigned char>& treeArray, std::vector<NodeArvore*>& listaNos,
+                       int& idx) {
    int byte;
    unsigned frequency = 0;
    NodeArvore* left;
@@ -98,9 +99,12 @@ NodeArvore* decodeTree(std::vector<unsigned char>& treeArray, std::vector<NodeAr
    }
    else {
       treeArray.pop_back();
-      left = decodeTree(treeArray, listaNos);
-      right = decodeTree(treeArray, listaNos);
-      return new NodeArvore(-1, 0, left, right, nullptr);
+      left = decodeTree(treeArray, listaNos, idx);
+      right = decodeTree(treeArray, listaNos, idx);
+      // Decrementa a variavel idx para que cada internalNode possua um valor de "byte" diferente,
+      // funciona como um identificador unico para o sorting
+      idx--;
+      return new NodeArvore(idx, 0, left, right, nullptr);
    }
 }
 
