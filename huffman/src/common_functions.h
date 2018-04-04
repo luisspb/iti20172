@@ -24,4 +24,6 @@ void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<
 void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArvore* raiz,
                  std::vector<bool> bytesCodes[]);
 
+void deleteTree(NodeArvore* raiz);
+
 #endif

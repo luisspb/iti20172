@@ -161,6 +161,7 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                         if (listaNos[m]->getFrequencia())
                            uncompressedFile.push_back(listaNos[m]->getByte());
                      // Descompressao terminada, pode retornar da funcao de descompressao
+                     std::cout << "Sai por aqui!!!!!" << std::endl;
                      return;
                   }
                   // Caso ainda nao terminou o processo de descompressao, continue...

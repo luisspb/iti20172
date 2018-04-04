@@ -96,6 +96,9 @@ void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArv
 #endif
 
    // Frequencia decrementada, agora a arvore deve ser reconstruida
+   // Primeiro deleta a arvore anterior
+   if (raiz != nullptr)
+      deleteTree(raiz);
    // Chama a funcao com um valor de idx que sera usado como identificador unico de cada
    // InternalNode. O valor de idx passado sera o valor do primeiro InternalNode criado
    int idx = -1;
@@ -124,4 +127,12 @@ void updateTree (unsigned char byte, std::vector<NodeArvore*>& listaNos, NodeArv
       }
    }
 #endif
+}
+
+void deleteTree(NodeArvore* raiz) {
+   if (raiz->getEsquerda() != nullptr)
+      deleteTree(raiz->getEsquerda());
+   if (raiz->getDireita() != nullptr)
+      deleteTree(raiz->getDireita());
+   delete raiz;
 }
