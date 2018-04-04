@@ -161,7 +161,6 @@ void decompressFile(unsigned fileLength, std::vector<bool> bytesCodes[],
                         if (listaNos[m]->getFrequencia())
                            uncompressedFile.push_back(listaNos[m]->getByte());
                      // Descompressao terminada, pode retornar da funcao de descompressao
-                     std::cout << "Sai por aqui!!!!!" << std::endl;
                      return;
                   }
                   // Caso ainda nao terminou o processo de descompressao, continue...
@@ -195,4 +194,5 @@ std::ofstream createUncompressedFile(const char* originalFilename) {
 void writeUncompressedFile(std::ofstream& outputFile, std::vector<unsigned char>& uncompressedFile) {
    for (unsigned i = 0; i < uncompressedFile.size(); i++)
       outputFile << uncompressedFile[i];
+   std::cout << "File decompressed!" << std::endl << std::endl;
 }

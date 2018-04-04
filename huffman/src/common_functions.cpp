@@ -19,8 +19,15 @@ void traverseTree(NodeArvore* raiz, std::vector<bool> bytesCodes[], std::vector<
    right = code;
    right.push_back(1);
 
-   if (raiz->getByte() > -1)
-      bytesCodes[raiz->getByte()] = code;
+   if (raiz->getByte() > -1) {
+      if (code.size())
+         bytesCodes[raiz->getByte()] = code;
+      // Esse else resolve qdo só restar a raiz da arvore no processo de decremento
+      // Restando só a raiz, nao eh gerado nenhum codigo ateh aqui, portanto eh usado o bit 0 como
+      // codigo
+      else
+         bytesCodes[raiz->getByte()].push_back(0);
+   }
 
    if (raiz->getEsquerda() != nullptr)
       traverseTree(raiz->getEsquerda(), bytesCodes, left);
