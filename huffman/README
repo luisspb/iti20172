@@ -1,0 +1,9 @@
+- Para compilar:
+$ make
+
+- Para comprimir:
+$ huffman c nome_do_arquivo.ext
+
+- Para descomprimir
+$ huffman x nome_do_aquivo.huf
+
