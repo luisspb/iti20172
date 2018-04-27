@@ -1,0 +1,9 @@
+- Para compilar:
+$ make
+
+- Para comprimir:
+$ lzw c arquivo_de_entrada arquivo_de_saida
+
+- Para descomprimir
+$ lzw x arquivo_de_entrada arquivo_de_saida
+
