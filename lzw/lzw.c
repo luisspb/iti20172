@@ -15,16 +15,7 @@
 #include <stdio.h>
 
 #include "tree_node.h"
-#include "common_functions.h"
-#include "compress_functions.h"
-#include "decompress_functions.h"
-
-// Prototipo da funcao que abre o arquivo recebe nome do arquivo com a extensao
-FILE* openFile(char* filename);
-// Prototipo da funcao que realiza a Compressao
-void compress(tipo dictSize, FILE inputFile, FILE outputFile, tipo tree);
-// Prototipo da funcao que realiza a Descompressao
-void decompress(FILE inputFile, FILE outputFile, tipo tree);
+#include "functions.h"
 
 /**************************************************************************************************/
 int main (int argc, char *argv[]) {
@@ -65,100 +56,24 @@ FILE* openFile(char* filename) {  /* Converter para C */
 }
 
 
-void compress(dictSize, FILE inputFile, FILE outputFile) {   /* Converter para C */
-   // Vetor para armanezar os nos que vao compor a arvore de Huffman
-   std::vector<NodeArvore*> listaNos;
-   // Ponteiro para a raiz da arvore que sera construida
-   NodeArvore* raiz;
-   // Array ponteiros para os vetores de codigos dos bytes
-   std::vector<bool> bytesCodes[BYTE];
-   // Vector de bytes para receber o arquivo compactado
-   std::vector<unsigned char> compactedFile;
-   // Array para armanezar a arvore que sera gravado no arquivo de saida
-   std::vector<unsigned char> treeArray;
+void compress(tipo dictSize, FILE inputFile, FILE outputFile, tipo tree) {   /* Converter para C */
+   /* Array para receber o arquivo compactado */
+   array compactedFile;
 
-   fileLength = countByteFrequency(inputFile, bytesArray);
+   encodeFile();
 
-   // Cria a lista com os nos folha da arvore de Huffman
-   for (int i = 0; i < BYTE; i++) {
-      if (bytesArray[i] != 0) {
-         listaNos.push_back(new NodeArvore(i, bytesArray[i], nullptr, nullptr, nullptr));
-      }
-   }
-
-#ifdef DEBUG
-   std::cout << "-- Primeira Lista --" << std::endl;
-   for (unsigned i = 0; i < listaNos.size(); i++)
-      std::cout << "Byte: " << listaNos[i]->getByte() << ", Frequencia: "
-                << listaNos[i]->getFrequencia() << std::endl;
-#endif
-
-   // Constroi a arvore de Huffman
-   // Chama a funcao com um valor de idx que sera usado como identificador unico de cada
-   // InternalNode. O valor de idx passado sera o valor do primeiro InternalNode criado
-   int idx = -1;
-   raiz = buildHuffmanTree(listaNos, idx);
-
-   #ifdef DEBUG
-      std::cout << "-- Primeira Arvore --" << std::endl;
-   #endif
-   // Percorre a arvore e cria o codigo
-   // Passa um vector de bool nao incializado
-   std::vector<bool> code;
-   traverseTree(raiz, bytesCodes, code);
-
-#ifdef DEBUG
-   std::cout << "-- Primeiro Codigo --" << std::endl;
-   for (unsigned i = 0; i < BYTE; i++) {
-      if (bytesCodes[i].size()) {
-         std::cout << "Byte: " << i << ", Codigo: ";
-         for (unsigned j = 0; j < bytesCodes[i].size(); j++)
-            std::cout << bytesCodes[i][j];
-         std::cout << std::endl;
-      }
-   }
-#endif
-
-   // Grava arvore em array
-   // Como a compressao vai reconstruindo a arvore, a original precisa ser codificada antes de
-   // comecar o processo que a altera
-   encodeTree(raiz, treeArray);
-   std::cout << "Size of encoded tree: " << treeArray.size() << std::endl;
-
-   // Compacta o arquivo em um vector de bytes
-   // Para o codigo de Huffman semi-adaptativo de decremento, a funcao que faz a compressao vai
-   // decrementando a frequencia dos bytes codificados e reconstruindo a arvore. Por isso precisa-se
-   // agora passar como argumento tambem a lista de nos
-   compressFile(inputFile, fileLength, bytesCodes, compactedFile, listaNos);
-
-#ifdef DEBUG
-   std::cout << "-- Bytes compactados -- " << std::endl;
-   for (unsigned i = 0; i < compactedFile.size(); i++) {
-      std::bitset<8> bits(compactedFile[i]);
-      std::cout << bits << std::endl;
-   }
-#endif
-
-   // Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
-   // O cabecalho eh composto por (nessa ordem):
-   // 1) 4 bytes que representam o numero de bytes do arquivo original
-   // 2) Nome do arquivo original (incluindo a extensao do arquivo)
-   // 3) 4 bytes que representam o numero de bytes do array da arvore
-   // 4) O array da arvore
-   // 5) 4 bytes que representam o numero de bytes do arquivo compactado
-   //
-   // Formato do arquivo gerado:
-   // ----------------- // --------------- //
-   // Tamanho maximo do // Nome do arquivo //
-   // dicionario        // original        //
-   // ----------------- // --------------- //
-
-   outputFile = createCompressedFile(originalFilename);
-   writeCompressedFile(outputFile, fileLength, originalFilename, treeArray, compactedFile);
+   /* Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
+   ** O cabecalho eh composto apenas pelo numero do tamanho maximo do dicionario.
+   ** Formato do arquivo gerado:
+   ** ----------------- // --------------- //
+   ** Tamanho maximo do // Nome do arquivo //
+   ** dicionario        // original        //
+   ** ----------------- // --------------- */
+   writeCompressedFile(dictSize, compactedFile);
 }
 
 
-void decompress(FILE inputFile, FILE outputFile) {
+void decompress(FILE inputFile, FILE outputFile, tipo tree) {
    // Variavel para guardar o tamanho do arquivo original em bytes
    unsigned originalFileLength;
    // String para guardar o nome do arquivo original mais sua extensao
