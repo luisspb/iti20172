@@ -2,7 +2,7 @@
 #          Francisco Erberto
 # Baseado no tutorial disponivel em: http://ubuntuforum-pt.org/index.php/topic,21155.0.html
 
-CPPFLAGS= -std=gnu++11 -pedantic -O2 -Wall
+CPPFLAGS= -std=gnu99 -pedantic -Wall -O2
 VPATH = ./src
 LIBS= -lm
 MAIN = lzw
