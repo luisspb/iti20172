@@ -7,11 +7,12 @@
 #define BYTE 256
 
 /* Definicao da struct dos nos da arvore */
-typedef struct tree_nodes {
-   unsigned char      byte;
-   tree_node*         esquerda;
-   tree_node*         direita;
-   tree_node*         pai;
-} tree_node;
+typedef struct tree_node {
+   unsigned long index;
+   unsigned char byte;
+   TreeNode      childs;
+} TreeNode;
+
+/* Prototipo das funcoes da struct da arvore */
 
 #endif  /* TREE_NODE_ */
