@@ -6,14 +6,14 @@ CPPFLAGS= -std=gnu99 -pedantic -Wall -O2
 VPATH = ./src
 LIBS= -lm
 MAIN = lzw
-#SOURCES =
+SOURCES = ./src/tree_node.c
 
-$(MAIN): $(SOURCES) $(MAIN).cpp
-	g++ $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $@ $^
+$(MAIN): $(SOURCES) $(MAIN).c
+	gcc $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $@ $^
 
 clean:
 	-rm -f $(MAIN) *~
 
 debug:
 	$(MAKE) clean
-	g++ -Og -ggdb -DDEBUG $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $(MAIN) $(SOURCES) $(MAIN).cpp
+	g++ -Og -ggdb -DDEBUG $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $(MAIN) $(SOURCES) $(MAIN).c
