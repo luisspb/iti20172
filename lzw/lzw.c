@@ -13,7 +13,6 @@
 ** SO: Linux kernel 4.16.3-200.fc27.x86_64 (Fedora 27 Workstation) */
 
 #include <stdio.h>
-
 #include "tree_node.h"
 #include "functions.h"
 
@@ -26,14 +25,16 @@ int main (int argc, char *argv[]) {
 
    inputFile = openFile(argv[3]);
 
-   if (*argv[1] == 'c') {
-      compress(dictSize, inputFile, outputFile, tree);
-   }
-   else if (*argv[1] == 'x') {
-      decompress(inputFile, outputFile, tree);
-   }
+   printf ("Arquivo aberto com sucesso\n");
 
-   close inputFile;  /* Pseudocodigo */
-   close outputFile;  /* Pseudocodigo */
+   // if (*argv[1] == 'c') {
+   //    compress(dictSize, inputFile, outputFile, tree);
+   // }
+   // else if (*argv[1] == 'x') {
+   //    decompress(inputFile, outputFile, tree);
+   // }
+   //
+   // close inputFile;  /* Pseudocodigo */
+   // close outputFile;  /* Pseudocodigo */
    return 0;
 }

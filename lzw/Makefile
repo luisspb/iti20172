@@ -6,7 +6,7 @@ CPPFLAGS= -std=gnu99 -pedantic -Wall -O2
 VPATH = ./src
 LIBS= -lm
 MAIN = lzw
-SOURCES = ./src/tree_node.c
+SOURCES = ./src/tree_node.c ./src/functions.c
 
 $(MAIN): $(SOURCES) $(MAIN).c
 	gcc $(CPPFLAGS) -I$(VPATH) $(LIBS) -o $@ $^
