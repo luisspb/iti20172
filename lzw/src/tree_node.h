@@ -11,7 +11,7 @@ typedef struct tree_node TreeNode;
 struct tree_node {
    unsigned long  index;
    unsigned char  byte;
-   TreeNode*      childs;
+   TreeNode**     childs;
 };
 
 /* Prototipo das funcoes da struct da arvore */

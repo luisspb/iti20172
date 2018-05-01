@@ -8,10 +8,12 @@
 #include <stdlib.h>
 #include "tree_node.h"
 
-/**/
-
 // Prototipo da funcao que abre o arquivo recebe nome do arquivo com a extensao
-FILE* openFile(char* filename);
+FILE* openFile (char* filename);
+
+//Prototipo da funcao que carrega o arquivo na memoria
+unsigned char* loadFile (FILE* file);
+
 // Prototipo da funcao que realiza a Compressao
 // void compress(tipo dictSize, FILE inputFile, FILE outputFile, tipo tree);
 // // Prototipo da funcao que realiza a Descompressao

@@ -22,10 +22,16 @@ int main (int argc, char *argv[]) {
    FILE* inputFile;
    // Variavel que tera o stream do arquivo de saida
    FILE* outputFile;
+   // Ponteiro para o array que contera o conteudo do arquivo carregado
+   unsigned char* fileArray;
 
+   // Abre arquivo
    inputFile = openFile(argv[3]);
 
-   printf ("Arquivo aberto com sucesso\n");
+   // Carrega arquivo na memoria
+   fileArray = loadFile (inputFile);
+
+   printf ("Arquivo carregado com sucesso\n");
 
    // if (*argv[1] == 'c') {
    //    compress(dictSize, inputFile, outputFile, tree);

@@ -3,7 +3,8 @@
 
 #include "functions.h"
 
-FILE* openFile(char* filename) {
+// Funcao que abre o arquivo recebe nome do arquivo com a extensao
+FILE* openFile (char* filename) {
    FILE* file;
 
    printf ("Opening input file: %s\n", filename);
@@ -17,6 +18,36 @@ FILE* openFile(char* filename) {
       return file;
 }
 
+// Funcao que carrega o arquivo na memoria
+unsigned char* loadFile (FILE* file) {
+
+   unsigned char* fileArray = NULL;
+   size_t filesize, freadSize;
+
+   // Descobre o tamanho do arquivo
+   fseek (file, 0L, SEEK_END);
+   filesize = ftell (file);
+   fseek (file, 0L, SEEK_SET);
+
+   // Aloca memoria para carregar o arquivo
+   fileArray = (unsigned char*) malloc (filesize);
+   // Se alocacao deu errado, encerra o programa
+   if (fileArray == NULL) {
+      printf ("Cannot allocate memory for this file.\n");
+      exit(1);
+   }
+
+   // Lê o arquivo e o carrega no array
+   freadSize = fread (fileArray, sizeof(unsigned char), filesize, file);
+
+   // Testa se a leitura do arquido deu certo, caso contrario aborta o programa
+   if (filesize != freadSize) {
+      printf ("Cannot load this file.\n%lu\n%lu", filesize, freadSize);
+      exit(1);
+   }
+
+   return fileArray;
+}
 
 // void compress(tipo dictSize, FILE inputFile, FILE outputFile, tipo tree) {   /* Converter para C */
 //    /* Array para receber o arquivo compactado */
