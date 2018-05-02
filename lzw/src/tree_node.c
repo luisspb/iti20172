@@ -3,4 +3,14 @@
 
 #include "tree_node.h"
 
-/* Implementacao das funcoes da struct da arvore */
+// Funcao que cria um noh da arvore e retorna um ponteiro para ele
+TreeNode* createNode (unsigned long index, unsigned char* byteArray) {
+   TreeNode* node = NULL;
+
+   node = (TreeNode*) malloc (sizeof(TreeNode));
+   node->index = index;
+   node->byteArray = byteArray;
+   node->childs = NULL;
+
+   return node;
+}

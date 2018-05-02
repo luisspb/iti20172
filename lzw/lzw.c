@@ -19,27 +19,36 @@
 int main (int argc, char *argv[]) {
 
    // Arquivo a ser aberto para processamento
-   FILE* inputFile;
+   FILE* inputFile = NULL;
    // Variavel que tera o stream do arquivo de saida
-   FILE* outputFile;
+   FILE* outputFile = NULL;
    // Ponteiro para o array que contera o conteudo do arquivo carregado
-   unsigned char* fileArray;
+   unsigned char* fileArray = NULL;
+   // Ponteiro para o array que contera o conteudo do arquivo compactado ou descompactado
+   unsigned char* processedArray = NULL;
+   // Ponteiro para a raiz da arvore do dicionario
+   TreeNode* treeRoot = NULL;
+
+   // Testa se o programa foi chamado com a quantidade correta de argumentos
+   /* Implementar */
 
    // Abre arquivo
-   inputFile = openFile(argv[3]);
-
+   inputFile = openFile (argv[3]);
    // Carrega arquivo na memoria
    fileArray = loadFile (inputFile);
+   // Cria o dicionario inicial
+   initDict (&treeRoot);
 
-   printf ("Arquivo carregado com sucesso\n");
+   printf ("Raiz da arvore inicializada: %lu %p %p\n", treeRoot->index, treeRoot->byteArray,
+                                                       (void*) treeRoot->childs);
 
    // if (*argv[1] == 'c') {
-   //    compress(dictSize, inputFile, outputFile, tree);
+   //    compress(dictSize, fileArray, processedArray, treeRoot);
    // }
    // else if (*argv[1] == 'x') {
-   //    decompress(inputFile, outputFile, tree);
+   //    decompress(fileArray, processedArray, treeRoot);
    // }
-   //
+
    // close inputFile;  /* Pseudocodigo */
    // close outputFile;  /* Pseudocodigo */
    return 0;

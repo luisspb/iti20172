@@ -20,7 +20,6 @@ FILE* openFile (char* filename) {
 
 // Funcao que carrega o arquivo na memoria
 unsigned char* loadFile (FILE* file) {
-
    unsigned char* fileArray = NULL;
    size_t filesize, freadSize;
 
@@ -42,18 +41,26 @@ unsigned char* loadFile (FILE* file) {
 
    // Testa se a leitura do arquido deu certo, caso contrario aborta o programa
    if (filesize != freadSize) {
-      printf ("Cannot load this file.\n%lu\n%lu", filesize, freadSize);
+      printf ("Cannot load this file.\n");
       exit(1);
    }
 
    return fileArray;
 }
 
-// void compress(tipo dictSize, FILE inputFile, FILE outputFile, tipo tree) {   /* Converter para C */
-//    /* Array para receber o arquivo compactado */
-//    array compactedFile;
+// Funcao que inicializa o dicionario
+void initDict (TreeNode** treeRoot) {
+
+   // Inicializa a raiz
+   *treeRoot = createNode(0, NULL);
+
+}
+
+// // Funcao que realiza a compressao do arquivo
+// void compress(char* dictSize, unsigned char* fileArray, unsigned char* processedArray,
+//               TreeNode* treeRoot) {
 //
-//    encodeFile();
+//    // encodeFile();
 //
 //    /* Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
 //    ** O cabecalho eh composto apenas pelo numero do tamanho maximo do dicionario.
@@ -62,10 +69,10 @@ unsigned char* loadFile (FILE* file) {
 //    ** Tamanho maximo do // Nome do arquivo //
 //    ** dicionario        // original        //
 //    ** ----------------- // --------------- */
-//    writeCompressedFile(dictSize, compactedFile);
+//
+//    // writeCompressedFile(dictSize, compactedFile);
 // }
-//
-//
+
 // void decompress(FILE inputFile, FILE outputFile, tipo tree) {
 //    // Variavel para guardar o tamanho do arquivo original em bytes
 //    unsigned originalFileLength;
