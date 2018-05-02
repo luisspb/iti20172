@@ -27,8 +27,12 @@ int main (int argc, char* argv[]) {
 
    // Arquivo a ser aberto para processamento
    FILE* inputFile = NULL;
+   // Variavel para guardar o tamanho em bytes do arquivo de entrada
+   size_t inputFilesize;
    // Variavel que tera o stream do arquivo de saida
    FILE* outputFile = NULL;
+   // Variavel para guardar o tamanho em bytes do arquivo de saida
+   size_t outputFilesize;
    // Ponteiro para o array que contera o conteudo do arquivo carregado
    byte* fileArray = NULL;
    // Ponteiro para o array que contera o conteudo do arquivo processado
@@ -76,12 +80,12 @@ int main (int argc, char* argv[]) {
    // Abre arquivo
    inputFile = openInputFile (inputFilename);
    // Carrega arquivo na memoria
-   fileArray = loadFile (inputFile);
+   fileArray = loadFile (inputFile, &inputFilesize);
    // Cria o dicionario inicial
    treeRoot = initDict();
 
    if (*option == 'c') {
-      processedArray = compress(dictMaxSize, fileArray, treeRoot);
+      processedArray = compress(dictMaxSize, fileArray, inputFilesize, treeRoot, &outputFilesize);
    }
    // else if (*option == 'x') {
    //    processedArray = decompress(fileArray, treeRoot);

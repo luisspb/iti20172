@@ -12,13 +12,14 @@
 FILE* openInputFile (char* filename);
 
 // Prototipo da funcao que carrega o arquivo na memoria
-byte* loadFile (FILE* file);
+byte* loadFile (FILE* file, size_t* filesize);
 
 // Prototipo da funcao que inicializa o dicionario
 TreeNode* initDict (void);
 
 // Prototipo da funcao que realiza todo o processo de Compressao
-byte* compress(unsigned dictMaxSize, byte* fileArray, TreeNode* treeRoot);
+byte* compress(unsigned dictMaxSize, byte* fileArray, size_t filesize, TreeNode* treeRoot,
+               size_t* compressedSize);
 
 // // Prototipo da funcao que realiza a Descompressao
 // void decompress(FILE inputFile, FILE outputFile, tipo tree);

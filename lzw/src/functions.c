@@ -19,9 +19,9 @@ FILE* openInputFile (char* filename) {
 }
 
 // Funcao que carrega o arquivo na memoria
-byte* loadFile (FILE* file) {
+byte* loadFile (FILE* file, size_t* filesize) {
    byte* fileArray = NULL;
-   size_t filesize, freadSize;
+   size_t freadSize;
 
    // Descobre o tamanho do arquivo
    fseek (file, 0L, SEEK_END);
@@ -36,7 +36,7 @@ byte* loadFile (FILE* file) {
       exit(1);
    }
 
-   // Lê o arquivo e o carrega no array
+   // Le o arquivo e o carrega no array
    freadSize = fread (fileArray, sizeof(byte), filesize, file);
 
    // Testa se a leitura do arquido deu certo, caso contrario aborta o programa
@@ -61,39 +61,69 @@ TreeNode* initDict (void) {
    treeRoot->childs = (TreeNode**) malloc (sizeof(TreeNode*) * BYTE);
 
    // Cria o dicionario inicial basico, com os bytes adicionados como nos filhos da raiz
-   for (unsigned i = 0; i < BYTE; i++) {
-      byte* byteArray = (byte*) malloc (sizeof(byte));
-      *byteArray = (byte) i;
-      treeRoot->childs[i] = createNode (i, byteArray);
-   }
+   for (unsigned i = 0; i < BYTE; i++)
+      treeRoot->childs[i] = createNode (i, (byte) i);
 
    return treeRoot;
 }
 
-// Funcao que realiza a compressao do arquivo
-byte* compress(unsigned dictMaxSize, byte* fileArray, TreeNode* treeRoot) {
+/* Funcao que realiza a compressao do arquivo e gera array com o conteudo do arquivo compactado
+** O cabecalho do arquivo sera composto apenas pelo numero do tamanho maximo do dicionario.
+** Formato do arquivo gerado:
+** ----------------- // --------------- //
+** Tamanho maximo do // Nome do arquivo //
+** dicionario        // original        //
+** ----------------- // --------------- */
+byte* compress(unsigned dictMaxSize, byte* fileArray, size_t filesize, TreeNode* treeRoot,
+               size_t* compressedSize) {
    // Ponteiro para o array que contera o conteudo do arquivo processado
    byte* compressedArray = NULL;
+   // Variavel que guarda quantos bytes livres alocados ainda possui o array do conteudo compactado
+   unsigned short freeSize;
    // Variavel auxiliar para gravacao do tamanho maximo do dicionario no array do arquivo de saida
    unsigned dictMaxSizeEncode = dictMaxSize;
+   // Buffer para armanezar os bytes lidos do array que possui o conteudo do arquivo
+   byte byteBuffer;
+   // Ponteiro que vai percorrendo a arvore e fazendo o match da sequencia de bytes
+   TreeNode* matchPtr = treeRoot;
+   // Variavel que guarda o numero do indice da proxima entrada do dicionario
+   unsigned nextIndex = BYTE;
 
    // Inicialmente coloca no array do arquivo de saida, com 4 bytes, o numero do tamanho maximo do
    // dicionario
-   compressedArray = (byte*) malloc(4);
+   // O array eh alocado com 256 bytes e eh aumentado sempre de 256 e 256 bytes; ser aumentado a
+   // cada byte reduziria bastante a perfomance do programa
+   compressedArray = (byte*) malloc(BYTE);
+   freeSize = BYTE;
    compressedArray[0] = dictMaxSizeEncode % BYTE;
    dictMaxSizeEncode /= BYTE;
    compressedArray[1] = dictMaxSizeEncode % BYTE;
    dictMaxSizeEncode /= BYTE;
    compressedArray[2] = dictMaxSizeEncode % BYTE;
    compressedArray[3] = dictMaxSizeEncode / BYTE;
+   freeSize -= 4;
+   compressedSize += 4;
 
-   /* Gera array com o conteudo do arquivo compactado
-   ** O cabecalho do arquivo sera composto apenas pelo numero do tamanho maximo do dicionario.
-   ** Formato do arquivo gerado:
-   ** ----------------- // --------------- //
-   ** Tamanho maximo do // Nome do arquivo //
-   ** dicionario        // original        //
-   ** ----------------- // --------------- */
+   // Le byte por byte do arquivo, o codifica, atualiza dicionario e vai construindo o array com o
+   // conteudo compactado
+   for (size_t i = 0; i < filesize; i++) {
+      byteBuffer = fileArray[i];
+
+      for (unsigned short j = 0; j < matchPtr->childsCounter; j++)
+         // Se encontrar o match encerra a procura, byte ou sequencia de bytes esta no dicionario
+         if (byteBuffer == matchPtr->byte)
+            break;
+
+      // Se houve match, atualiza o ponteiro de matching
+      if (j < matchPtr->childsCounter) {
+         matchPtr = matchPtr->childs[j];
+      }
+      // Caso nao tenha havido o match
+      else {
+         // Adiciona entrada ao dicionario
+         addChild (matchPtr, nextIndex, byteBuffer);
+      }
+   }
 
    return compressedArray;
 }
