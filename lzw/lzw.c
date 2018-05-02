@@ -50,7 +50,7 @@ int main (int argc, char* argv[]) {
    }
    else {
       // Argumento da opcao escolhida ('c' para compressao, ou 'x' para descompressao)
-      option = (char*) malloc (sizeof(argv[1]));
+      option = (char*) malloc (strlen(argv[1]));
       strcpy (option, argv[1]);
       if (*option == 'c') {
          // Tamanho do dicionario
@@ -59,16 +59,16 @@ int main (int argc, char* argv[]) {
          if (dictMaxSize < BYTE)
             dictMaxSize = BYTE;
          // Nomes dos arquivos de entrada e saida
-         inputFilename = (char*) malloc (sizeof(argv[3]));
+         inputFilename = (char*) malloc (strlen(argv[3]));
          strcpy (inputFilename, argv[3]);
-         outputFilename = (char*) malloc (sizeof(argv[4]));
+         outputFilename = (char*) malloc (strlen(argv[4]));
          strcpy (outputFilename, argv[4]);
       }
       else {  // Se opcao for 'x'
          // Nomes dos arquivos de entrada e saida
-         inputFilename = (char*) malloc (sizeof(argv[2]));
+         inputFilename = (char*) malloc (strlen(argv[2]));
          strcpy (inputFilename, argv[2]);
-         outputFilename = (char*) malloc (sizeof(argv[3]));
+         outputFilename = (char*) malloc (strlen(argv[3]));
          strcpy (outputFilename, argv[3]);
       }
    }
