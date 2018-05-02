@@ -1,6 +1,9 @@
 /* Autores: Jorgeluis Guerra
 **          Francisco Erberto */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "functions.h"
 
 // Funcao que abre o arquivo recebe nome do arquivo com a extensao
@@ -67,6 +70,42 @@ TreeNode* initDict (void) {
    return treeRoot;
 }
 
+//Função que ler os 8 bits e retorna um numero inteior ou ZERO em caso de erro
+
+int LerBits(FILE* arquivo){
+
+   int valor;
+   static bool left = true;
+   
+   unsigned char buf[2];
+   if(feft){
+   
+      //Se "esquerda", Ler 2 bytes e calcular inteiro
+      if(fread(buf, 1, 2, arquivo) != 2){
+      
+         return 0;
+      }
+      if(feof(arquivo)){
+      
+         valor = (bu[0] << 8| buf[1];
+      }
+      else{
+         valor = (bu[0] << 4| buf[1] >> 4);
+      }
+                  left = false;
+   }else{
+      
+      fseek(arquivo, -1, SEEK_CUR);
+      if(fread(buf,1,2,arquivo)!= 2){
+         return 0;
+      }
+      valor = ((buf[0] & 0X0F) << 8 | buf[1];
+               left = true;
+               
+               }
+               return valor;
+}
+
 /* Funcao que realiza a compressao do arquivo e gera array com o conteudo do arquivo compactado
 ** O cabecalho do arquivo sera composto apenas pelo numero do tamanho maximo do dicionario.
 ** Formato do arquivo gerado:
@@ -127,6 +166,44 @@ byte* compress(unsigned dictMaxSize, byte* fileArray, size_t filesize, TreeNode*
 
    return compressedArray;
 }
+
+   void decompress(FILE * arquivo, FILE *dest){
+   
+      //carrega_dicionario_inicial(dicionario);
+      int dictPos = 256;
+      int anterior; //codigo anterior
+      int atual; //codigo atual
+      
+      unsigned char* antString, atualString;
+      
+      // Ler o primeiro caracter 
+      if(dicionario[atual] == NULL){
+      
+         return 1;
+      }
+      //Copia Blocos de Memoria
+      memcpy(atualString, dicionario[atual], size+1);
+      fprintf(dest, "%s", atualString);
+      anterior = atual;
+      antString = atualString;
+      
+      //Ler o restante dos caracteres
+      while((atual = lerBits(arquivo)) && atual){
+      
+         if(dicionario[atual] == NULL){
+         
+            return 1;
+         }
+         size = strlen((char*)dicionario[atual]);
+         atualString = calloc(size + 2, sizeof(char));
+         if(atualString == NULL){
+         
+            return 1;
+         }
+         memcpy(atualString, dicionario[atual], size+1);
+         fprintf(dest, "%s", atualString);
+      }
+   }
 
 // void decompress(FILE inputFile, FILE outputFile, tipo tree) {
 //    // Variavel para guardar o tamanho do arquivo original em bytes
