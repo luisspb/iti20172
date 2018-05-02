@@ -13,47 +13,84 @@
 ** SO: Linux kernel 4.16.3-200.fc27.x86_64 (Fedora 27 Workstation) */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "tree_node.h"
 #include "functions.h"
 
-int main (int argc, char *argv[]) {
+int main (int argc, char* argv[]) {
+   // Variaveis para guardar os argumentos passados para o programa
+   char* option;
+   unsigned dictMaxSize;
+   char* inputFilename;
+   char* outputFilename;
 
    // Arquivo a ser aberto para processamento
    FILE* inputFile = NULL;
    // Variavel que tera o stream do arquivo de saida
    FILE* outputFile = NULL;
    // Ponteiro para o array que contera o conteudo do arquivo carregado
-   unsigned char* fileArray = NULL;
-   // Ponteiro para o array que contera o conteudo do arquivo compactado ou descompactado
-   unsigned char* processedArray = NULL;
+   byte* fileArray = NULL;
+   // Ponteiro para o array que contera o conteudo do arquivo processado
+   byte* processedArray = NULL;
    // Ponteiro para a raiz da arvore do dicionario
    TreeNode* treeRoot = NULL;
 
-   // Testa se o programa foi chamado com a quantidade correta de argumentos
-   /* Implementar */
+   // Trata os argumentos que foram passados ao programa
+   // Primeiro testa se o programa foi executado com algum argumento de entrada, depois se ou o
+   // argumento 'c' de compressao ou o 'x' de descompressao foi passado e se, de acordo com a opcao
+   // selecionada ('c' ou 'x'), a quantidade de argumentos esta correta
+   if ((argc < 2)
+       || ((*argv[1] == 'c') && (argc != 5))
+       || ((*argv[1] == 'x') && (argc != 4))) {
+      printf ("\nWrong syntax!\n");
+      printf ("Use: lzw c dict_max_size input_file output_file\n");
+      printf ("Or use: lzw x input_file output_file\n\n");
+      exit(1);
+   }
+   else {
+      // Argumento da opcao escolhida ('c' para compressao, ou 'x' para descompressao)
+      option = (char*) malloc (sizeof(argv[1]));
+      strcpy (option, argv[1]);
+      if (*option == 'c') {
+         // Tamanho do dicionario
+         dictMaxSize = atoi (argv[2]);
+         // Tamanho minimo do dicionario deve ser 256, que equivale ao dicionario inicial
+         if (dictMaxSize < BYTE)
+            dictMaxSize = BYTE;
+         // Nomes dos arquivos de entrada e saida
+         inputFilename = (char*) malloc (sizeof(argv[3]));
+         strcpy (inputFilename, argv[3]);
+         outputFilename = (char*) malloc (sizeof(argv[4]));
+         strcpy (outputFilename, argv[4]);
+      }
+      else {  // Se opcao for 'x'
+         // Nomes dos arquivos de entrada e saida
+         inputFilename = (char*) malloc (sizeof(argv[2]));
+         strcpy (inputFilename, argv[2]);
+         outputFilename = (char*) malloc (sizeof(argv[3]));
+         strcpy (outputFilename, argv[3]);
+      }
+   }
 
    // Abre arquivo
-   inputFile = openFile (argv[3]);
+   inputFile = openInputFile (inputFilename);
    // Carrega arquivo na memoria
    fileArray = loadFile (inputFile);
    // Cria o dicionario inicial
    treeRoot = initDict();
 
-   printf ("Raiz da arvore inicializada: %lu %p %u %p\n\n", treeRoot->index,
-           treeRoot->byteArray, treeRoot->childsCounter, (void*) treeRoot->childs);
-
-   for (int i = 0; i < BYTE; i++)
-      printf ("Filho da raiz: %lu %u %p\n", treeRoot->childs[i]->index,
-              *treeRoot->childs[i]->byteArray, (void*) treeRoot->childs[i]->childs);
-
-   // if (*argv[1] == 'c') {
-   //    compress(dictSize, fileArray, processedArray, treeRoot);
+   if (*option == 'c') {
+      processedArray = compress(dictMaxSize, fileArray, treeRoot);
+   }
+   // else if (*option == 'x') {
+   //    processedArray = decompress(fileArray, treeRoot);
    // }
-   // else if (*argv[1] == 'x') {
-   //    decompress(fileArray, processedArray, treeRoot);
-   // }
+
+   // writeFile (dictMaxSize, processedArray);
 
    // close inputFile;  /* Pseudocodigo */
    // close outputFile;  /* Pseudocodigo */
+   // Free dos mallocs /* Implementar */
    return 0;
 }

@@ -9,23 +9,22 @@
 #include "tree_node.h"
 
 // Prototipo da funcao que abre o arquivo recebe nome do arquivo com a extensao
-FILE* openFile (char* filename);
+FILE* openInputFile (char* filename);
 
 // Prototipo da funcao que carrega o arquivo na memoria
-unsigned char* loadFile (FILE* file);
+byte* loadFile (FILE* file);
 
 // Prototipo da funcao que inicializa o dicionario
 TreeNode* initDict (void);
 
-// Prototipo da funcao que realiza a Compressao
-// void compress(char* dictSize, unsigned char* fileArray, unsigned char* processedArray,
-//               TreeNode* treeRoot);
+// Prototipo da funcao que realiza todo o processo de Compressao
+byte* compress(unsigned dictMaxSize, byte* fileArray, TreeNode* treeRoot);
 
 // // Prototipo da funcao que realiza a Descompressao
 // void decompress(FILE inputFile, FILE outputFile, tipo tree);
 // // Prototipo da funcao que codifica e comprime o arquivo de entrada
 // encodeFile();
 //
-// writeCompressedFile(dictSize, compactedFile);
+// writeCompressedFile(dictMaxSize, compactedFile);
 
 #endif  /* FUNCTIONS_ */

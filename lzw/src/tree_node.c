@@ -4,7 +4,7 @@
 #include "tree_node.h"
 
 // Funcao que cria um noh da arvore e retorna um ponteiro para ele
-TreeNode* createNode (unsigned long index, unsigned char* byteArray) {
+TreeNode* createNode (unsigned long index, byte* byteArray) {
    TreeNode* node = NULL;
 
    node = (TreeNode*) malloc (sizeof(TreeNode));
@@ -17,7 +17,7 @@ TreeNode* createNode (unsigned long index, unsigned char* byteArray) {
 }
 
 // Prototipo da funcao que adiciona um noh filho a um noh qualquer da arvore
-void addChild (TreeNode* node, unsigned long index, unsigned char* byteArray) {
+void addChild (TreeNode* node, unsigned long index, byte* byteArray) {
    TreeNode* child = NULL;
 
    // Cria o noh filho

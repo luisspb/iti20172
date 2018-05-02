@@ -2,7 +2,7 @@
 $ make
 
 - Para comprimir:
-$ lzw c tamanho_dic arquivo_de_entrada arquivo_de_saida
+$ lzw c tamanho_max_dic arquivo_de_entrada arquivo_de_saida
 
 (tamanho_dic é o tamanho, a quantidade limite de entradas que o dicionário pode ter, minimo de 256,
 que é o tamanho do alfabeto, 256 bytes, e máximo de 2^32)

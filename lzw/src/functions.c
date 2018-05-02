@@ -4,14 +4,14 @@
 #include "functions.h"
 
 // Funcao que abre o arquivo recebe nome do arquivo com a extensao
-FILE* openFile (char* filename) {
+FILE* openInputFile (char* filename) {
    FILE* file;
 
    printf ("Opening input file: %s\n", filename);
    file = fopen (filename, "rb");
 
    if (file == NULL) {
-      printf ("Error opening input file: %s", filename);
+      printf ("Error opening input file: %s\n", filename);
       exit (1);
    }
    else
@@ -19,8 +19,8 @@ FILE* openFile (char* filename) {
 }
 
 // Funcao que carrega o arquivo na memoria
-unsigned char* loadFile (FILE* file) {
-   unsigned char* fileArray = NULL;
+byte* loadFile (FILE* file) {
+   byte* fileArray = NULL;
    size_t filesize, freadSize;
 
    // Descobre o tamanho do arquivo
@@ -29,7 +29,7 @@ unsigned char* loadFile (FILE* file) {
    fseek (file, 0L, SEEK_SET);
 
    // Aloca memoria para carregar o arquivo
-   fileArray = (unsigned char*) malloc (filesize);
+   fileArray = (byte*) malloc (filesize);
    // Se alocacao deu errado, encerra o programa
    if (fileArray == NULL) {
       printf ("Cannot allocate memory for this file.\n");
@@ -37,7 +37,7 @@ unsigned char* loadFile (FILE* file) {
    }
 
    // Lê o arquivo e o carrega no array
-   freadSize = fread (fileArray, sizeof(unsigned char), filesize, file);
+   freadSize = fread (fileArray, sizeof(byte), filesize, file);
 
    // Testa se a leitura do arquido deu certo, caso contrario aborta o programa
    if (filesize != freadSize) {
@@ -62,30 +62,41 @@ TreeNode* initDict (void) {
 
    // Cria o dicionario inicial basico, com os bytes adicionados como nos filhos da raiz
    for (unsigned i = 0; i < BYTE; i++) {
-      unsigned char* byteArray = (unsigned char*) malloc (sizeof(unsigned char));
-      *byteArray = (unsigned char) i;
+      byte* byteArray = (byte*) malloc (sizeof(byte));
+      *byteArray = (byte) i;
       treeRoot->childs[i] = createNode (i, byteArray);
    }
 
    return treeRoot;
 }
 
-// // Funcao que realiza a compressao do arquivo
-// void compress(char* dictSize, unsigned char* fileArray, unsigned char* processedArray,
-//               TreeNode* treeRoot) {
-//
-//    // encodeFile();
-//
-//    /* Cria e grava em novo arquivo o cabecalho e em seguida o arquivo que foi compactado
-//    ** O cabecalho eh composto apenas pelo numero do tamanho maximo do dicionario.
-//    ** Formato do arquivo gerado:
-//    ** ----------------- // --------------- //
-//    ** Tamanho maximo do // Nome do arquivo //
-//    ** dicionario        // original        //
-//    ** ----------------- // --------------- */
-//
-//    // writeCompressedFile(dictSize, compactedFile);
-// }
+// Funcao que realiza a compressao do arquivo
+byte* compress(unsigned dictMaxSize, byte* fileArray, TreeNode* treeRoot) {
+   // Ponteiro para o array que contera o conteudo do arquivo processado
+   byte* compressedArray = NULL;
+   // Variavel auxiliar para gravacao do tamanho maximo do dicionario no array do arquivo de saida
+   unsigned dictMaxSizeEncode = dictMaxSize;
+
+   // Inicialmente coloca no array do arquivo de saida, com 4 bytes, o numero do tamanho maximo do
+   // dicionario
+   compressedArray = (byte*) malloc(4);
+   compressedArray[0] = dictMaxSizeEncode % BYTE;
+   dictMaxSizeEncode /= BYTE;
+   compressedArray[1] = dictMaxSizeEncode % BYTE;
+   dictMaxSizeEncode /= BYTE;
+   compressedArray[2] = dictMaxSizeEncode % BYTE;
+   compressedArray[3] = dictMaxSizeEncode / BYTE;
+
+   /* Gera array com o conteudo do arquivo compactado
+   ** O cabecalho do arquivo sera composto apenas pelo numero do tamanho maximo do dicionario.
+   ** Formato do arquivo gerado:
+   ** ----------------- // --------------- //
+   ** Tamanho maximo do // Nome do arquivo //
+   ** dicionario        // original        //
+   ** ----------------- // --------------- */
+
+   return compressedArray;
+}
 
 // void decompress(FILE inputFile, FILE outputFile, tipo tree) {
 //    // Variavel para guardar o tamanho do arquivo original em bytes
@@ -95,17 +106,17 @@ TreeNode* initDict (void) {
 //    // Variavel para o tamanho do array da arvore que sera lida do arquivo compactado
 //    unsigned treeArraySize;
 //    // Array para armanezar a arvore codificada
-//    std::vector<unsigned char> treeArray;
+//    std::vector<byte> treeArray;
 //    // Variavel para o tamanho dos bytes compactados do arquivo original
 //    unsigned compactedFileSize;
 //    // Array para armanezar os bytes lidos do arquivo compactado
-//    std::vector<unsigned char> compactedFile;
+//    std::vector<byte> compactedFile;
 //    // Ponteiro para a raiz da arvore que sera reconstruida
 //    NodeArvore* raiz;
 //    // Array ponteiros para os vetores de codigos dos bytes
 //    std::vector<bool> bytesCodes[BYTE];
 //    // Vector de bytes para receber o arquivo descompactado
-//    std::vector<unsigned char> uncompressedFile;
+//    std::vector<byte> uncompressedFile;
 //    // Vetor para armanezar os nos folha que serao recuperados da arvore de Huffman
 //    std::vector<NodeArvore*> listaNos;
 //
