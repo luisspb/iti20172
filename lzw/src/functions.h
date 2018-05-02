@@ -15,7 +15,7 @@ FILE* openFile (char* filename);
 unsigned char* loadFile (FILE* file);
 
 // Prototipo da funcao que inicializa o dicionario
-void initDict (TreeNode** treeRoot);
+TreeNode* initDict (void);
 
 // Prototipo da funcao que realiza a Compressao
 // void compress(char* dictSize, unsigned char* fileArray, unsigned char* processedArray,

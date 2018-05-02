@@ -49,11 +49,25 @@ unsigned char* loadFile (FILE* file) {
 }
 
 // Funcao que inicializa o dicionario
-void initDict (TreeNode** treeRoot) {
+TreeNode* initDict (void) {
+   TreeNode* treeRoot = NULL;
 
    // Inicializa a raiz
-   *treeRoot = createNode(0, NULL);
+   treeRoot = createNode(0, NULL);
 
+   // Altera o contador de filhos da raiz para 256 e aloca um array de 256 nos filhos para a raiz da
+   // arvore
+   treeRoot->childsCounter = BYTE;
+   treeRoot->childs = (TreeNode**) malloc (sizeof(TreeNode*) * BYTE);
+
+   // Cria o dicionario inicial basico, com os bytes adicionados como nos filhos da raiz
+   for (unsigned i = 0; i < BYTE; i++) {
+      unsigned char* byteArray = (unsigned char*) malloc (sizeof(unsigned char));
+      *byteArray = (unsigned char) i;
+      treeRoot->childs[i] = createNode (i, byteArray);
+   }
+
+   return treeRoot;
 }
 
 // // Funcao que realiza a compressao do arquivo

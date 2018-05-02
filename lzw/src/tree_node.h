@@ -13,10 +13,14 @@ typedef struct tree_node TreeNode;
 struct tree_node {
    unsigned long   index;
    unsigned char*  byteArray;
+   unsigned short  childsCounter;
    TreeNode**      childs;
 };
 
 // Prototipo da funcao que cria um noh da arvore
 TreeNode* createNode (unsigned long index, unsigned char* byteArray);
+
+// Prototipo da funcao que adiciona um noh filho a um noh qualquer da arvore
+void addChild (TreeNode* node, unsigned long index, unsigned char* byteArray);
 
 #endif  /* TREE_NODE_ */

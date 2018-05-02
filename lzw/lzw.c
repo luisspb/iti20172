@@ -37,10 +37,14 @@ int main (int argc, char *argv[]) {
    // Carrega arquivo na memoria
    fileArray = loadFile (inputFile);
    // Cria o dicionario inicial
-   initDict (&treeRoot);
+   treeRoot = initDict();
 
-   printf ("Raiz da arvore inicializada: %lu %p %p\n", treeRoot->index, treeRoot->byteArray,
-                                                       (void*) treeRoot->childs);
+   printf ("Raiz da arvore inicializada: %lu %p %u %p\n\n", treeRoot->index,
+           treeRoot->byteArray, treeRoot->childsCounter, (void*) treeRoot->childs);
+
+   for (int i = 0; i < BYTE; i++)
+      printf ("Filho da raiz: %lu %u %p\n", treeRoot->childs[i]->index,
+              *treeRoot->childs[i]->byteArray, (void*) treeRoot->childs[i]->childs);
 
    // if (*argv[1] == 'c') {
    //    compress(dictSize, fileArray, processedArray, treeRoot);
